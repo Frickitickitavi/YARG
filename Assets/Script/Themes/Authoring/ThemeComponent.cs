@@ -19,6 +19,8 @@ namespace YARG.Themes
         [SerializeField]
         private GameObject _fiveLaneNotes;
         [SerializeField]
+        private GameObject _sixLaneNotes;
+        [SerializeField]
         private GameObject _proKeysNotes;
 
         [Space]
@@ -46,6 +48,7 @@ namespace YARG.Themes
                 GameMode.FiveFretGuitar => _fiveFretNotes,
                 GameMode.FourLaneDrums  => _fourLaneNotes,
                 GameMode.FiveLaneDrums  => _fiveLaneNotes,
+                GameMode.SixLaneDrums   => _sixLaneNotes,
                 GameMode.ProKeys        => _proKeysNotes,
                 _ => throw new Exception("Unreachable.")
             };
@@ -86,6 +89,7 @@ namespace YARG.Themes
                 GameMode.FiveFretGuitar => _fiveFretFret,
                 GameMode.FourLaneDrums  => _fourLaneFret,
                 GameMode.FiveLaneDrums  => _fiveLaneFret,
+                GameMode.SixLaneDrums   => _fiveLaneFret,
                 _  => throw new Exception("Unreachable.")
             };
         }

@@ -239,6 +239,8 @@ namespace YARG.Settings
             public SliderSetting SongBackgroundOpacity { get; } = new(1f, 0f, 1f);
 
             public ToggleSetting UseCymbalModelsInFiveLane { get; } = new(true);
+
+            public ToggleSetting UseCymbalModelsInSixLane { get; } = new(true);
             public ToggleSetting UseThreeLaneLyricsInHarmony { get; } = new(true);
             public SliderSetting KickBounceMultiplier { get; } = new(1f, 0f, 2f);
 

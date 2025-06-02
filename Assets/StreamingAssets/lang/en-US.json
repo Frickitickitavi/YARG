@@ -20,6 +20,7 @@
             "SixFretGuitar": "Six Fret Guitar",
             "FourLaneDrums": "Standard Drums",
             "FiveLaneDrums": "5-Lane Drums",
+			"SixLaneDrums": "6-Lane Drums",
             "ProGuitar": "Pro Guitar",
             "ProKeys": "Pro Keys",
             "Menu": "Menu",
@@ -38,6 +39,7 @@
             "FourLaneDrums": "Four Lane Drums",
             "ProDrums": "Pro Drums",
             "FiveLaneDrums": "Five Lane Drums",
+			"SixLaneDrums": "Six Lane Drums",
             "EliteDrums": "Elite Drums",
             "ProGuitar_17Fret": "Pro Guitar (17-fret)",
             "ProGuitar_22Fret": "Pro Guitar (22-fret)",
@@ -89,6 +91,7 @@
             "FourLaneDrums": "Four Lane Drums",
             "ProDrums": "Pro Drums",
             "FiveLaneDrums": "Five Lane Drums",
+			"SixLaneDrums": "Six Lane Drums",
             "EliteDrums": "Elite Drums",
             "ProGuitar_17": "Pro Guitar (17-fret)",
             "ProGuitar_22": "Pro Guitar (22-fret)",
@@ -412,6 +415,14 @@
             "BluePad": "Blue Pad (Third)",
             "OrangeCymbal": "Orange Cymbal (Fourth)",
             "GreenPad": "Green Pad (Fifth)"
+        },
+		"SixDrums": {
+            "RedCymbal": "Red Cymbal (First)",
+			"SilverCymbal": "Silver Cymbal (Second)",
+            "YellowPad": "Yellow Pad (Third)",
+            "BluePad": "Blue Pad (Fourth)",
+            "GreenPad": "Green Pad (Fifth)",
+			"PurpleCymbal": "Purple Cymbal (Sixth)"
         },
         "ProKeys": {
             "Key1": "Key 1 (C2)",
@@ -833,6 +844,10 @@
                 "Name": "Use Cymbal Models In Five Lane",
                 "Description": "If enabled, cymbal models will be used in the second and fourth lanes instead of the standard note model (five-lane drums only)."
             },
+			"UseCymbalModelsInSixLane": {
+                "Name": "Use Cymbal Models In Six Lane",
+                "Description": "If enabled, cymbal models will be used in the first, second, and sixth lanes instead of the standard note model (six-lane drums only)."
+            },
             "UseFullDirectoryForPlaylists": {
                 "Name": "Use Full Directory For Playlists",
                 "Description": "Use full directory for the playlist sort option in the music library. <color=white>Rescan required if changed!</color>"
@@ -1041,7 +1056,8 @@
                         "FiveFretGuitar": "Five Fret Guitar",
                         "FiveLaneDrums": "Five Lane Drums",
                         "FourLaneDrums": "Four Lane Drums",
-                        "ProKeys": "Pro Keys"
+                        "ProKeys": "Pro Keys",
+						"SixLaneDrums": "Six Lane Drums"
                     }
                 },
                 "ActivationNote": {

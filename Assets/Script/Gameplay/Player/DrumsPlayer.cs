@@ -23,7 +23,7 @@ namespace YARG.Gameplay.Player
 
         [Header("Drums Specific")]
         [SerializeField]
-        private bool _fiveLaneMode;
+        private DrumLaneMode _laneMode;
         [SerializeField]
         private FretArray _fretArray;
         [SerializeField]
@@ -44,8 +44,15 @@ namespace YARG.Gameplay.Player
         public override void Initialize(int index, YargPlayer player, SongChart chart, TrackView trackView, StemMixer mixer,
             int? currentHighScore)
         {
-            // Before we do anything, see if we're in five lane mode or not
-            _fiveLaneMode = player.Profile.CurrentInstrument == Instrument.FiveLaneDrums;
+            // Before we do anything, see if we're in five or six lane mode
+            if (player.Profile.CurrentInstrument == Instrument.FiveLaneDrums)
+            {
+                _laneMode = DrumLaneMode.FIVE_LANE;
+            } else if (player.Profile.CurrentInstrument == Instrument.SixLaneDrums)
+            {
+                _laneMode = DrumLaneMode.SIX_LANE;
+            }
+
             base.Initialize(index, player, chart, trackView, mixer, currentHighScore);
         }
 
@@ -59,10 +66,11 @@ namespace YARG.Gameplay.Player
         {
             var mode = Player.Profile.CurrentInstrument switch
             {
-                Instrument.ProDrums      => DrumsEngineParameters.DrumMode.ProFourLane,
+                Instrument.ProDrums => DrumsEngineParameters.DrumMode.ProFourLane,
                 Instrument.FourLaneDrums => DrumsEngineParameters.DrumMode.NonProFourLane,
                 Instrument.FiveLaneDrums => DrumsEngineParameters.DrumMode.FiveLane,
-                _                        => throw new Exception("Unreachable.")
+                Instrument.SixLaneDrums => DrumsEngineParameters.DrumMode.SixLane,
+                _ => throw new Exception("Unreachable.")
             };
 
             if (GameManager.ReplayInfo == null)
@@ -111,10 +119,21 @@ namespace YARG.Gameplay.Player
             StarScoreThresholds = PopulateStarScoreThresholds(StarMultiplierThresholds, Engine.BaseScore);
 
             // Get the proper info for four/five lane
-            ColorProfile.IFretColorProvider colors = !_fiveLaneMode
-                ? Player.ColorProfile.FourLaneDrums
-                : Player.ColorProfile.FiveLaneDrums;
-            _fretArray.FretCount = !_fiveLaneMode ? 4 : 5;
+
+
+            ColorProfile.IFretColorProvider colors = _laneMode switch
+            {
+                DrumLaneMode.FIVE_LANE => Player.ColorProfile.FiveLaneDrums,
+                DrumLaneMode.SIX_LANE => Player.ColorProfile.SixLaneDrums,
+                _ => Player.ColorProfile.FourLaneDrums
+            };
+
+            _fretArray.FretCount = _laneMode switch
+            {
+                DrumLaneMode.FIVE_LANE => 5,
+                DrumLaneMode.SIX_LANE => 6,
+                _ => 4
+            };
 
             _fretArray.Initialize(
                 Player.ThemePreset,
@@ -165,33 +184,43 @@ namespace YARG.Gameplay.Player
 
             (NotePool.GetByKey(note) as DrumsNoteElement)?.HitNote();
 
-            // Four and five lane drums have the same kick value
+            // Four, five, and six lane drums have the same kick value
             if (note.Pad != (int) FourLaneDrumPad.Kick)
             {
-                int fret;
-                if (!_fiveLaneMode)
+                int fret = _laneMode switch
                 {
-                    fret = (FourLaneDrumPad) note.Pad switch
+                    DrumLaneMode.STANDARD => (FourLaneDrumPad) note.Pad switch
                     {
-                        FourLaneDrumPad.RedDrum                                    => 0,
+                        FourLaneDrumPad.RedDrum => 0,
                         FourLaneDrumPad.YellowDrum or FourLaneDrumPad.YellowCymbal => 1,
-                        FourLaneDrumPad.BlueDrum or FourLaneDrumPad.BlueCymbal     => 2,
-                        FourLaneDrumPad.GreenDrum or FourLaneDrumPad.GreenCymbal   => 3,
-                        _                                                          => -1
-                    };
-                }
-                else
-                {
-                    fret = (FiveLaneDrumPad) note.Pad switch
+                        FourLaneDrumPad.BlueDrum or FourLaneDrumPad.BlueCymbal => 2,
+                        FourLaneDrumPad.GreenDrum or FourLaneDrumPad.GreenCymbal => 3,
+                        _ => -1
+                    },
+
+                    DrumLaneMode.FIVE_LANE => (FiveLaneDrumPad) note.Pad switch
                     {
-                        FiveLaneDrumPad.Red    => 0,
+                        FiveLaneDrumPad.Red => 0,
                         FiveLaneDrumPad.Yellow => 1,
-                        FiveLaneDrumPad.Blue   => 2,
+                        FiveLaneDrumPad.Blue => 2,
                         FiveLaneDrumPad.Orange => 3,
-                        FiveLaneDrumPad.Green  => 4,
-                        _                      => -1
-                    };
-                }
+                        FiveLaneDrumPad.Green => 4,
+                        _ => -1
+                    },
+
+                    DrumLaneMode.SIX_LANE => (SixLaneDrumPad) note.Pad switch
+                    {
+                        SixLaneDrumPad.Red => 0,
+                        SixLaneDrumPad.Silver => 1,
+                        SixLaneDrumPad.Yellow => 2,
+                        SixLaneDrumPad.Blue => 3,
+                        SixLaneDrumPad.Green => 4,
+                        SixLaneDrumPad.Purple => 5,
+                        _ => -1
+                    },
+
+                    _ => throw new Exception("Unreachable.")
+                };
 
                 _fretArray.PlayHitAnimation(fret);
             }
@@ -246,32 +275,43 @@ namespace YARG.Gameplay.Player
             }
 
             // Choose the correct fret
-            int fret;
-            if (!_fiveLaneMode)
+            int fret = _laneMode switch
             {
-                fret = action switch
+                DrumLaneMode.STANDARD => action switch
                 {
-                    DrumsAction.Kick                                   => 0,
-                    DrumsAction.RedDrum                                => 1,
+                    DrumsAction.Kick => 0,
+                    DrumsAction.RedDrum => 1,
                     DrumsAction.YellowDrum or DrumsAction.YellowCymbal => 2,
-                    DrumsAction.BlueDrum or DrumsAction.BlueCymbal     => 3,
-                    DrumsAction.GreenDrum or DrumsAction.GreenCymbal   => 4,
-                    _                                                  => -1
-                };
-            }
-            else
-            {
-                fret = action switch
+                    DrumsAction.BlueDrum or DrumsAction.BlueCymbal => 3,
+                    DrumsAction.GreenDrum or DrumsAction.GreenCymbal => 4,
+                    _ => -1
+                },
+
+                DrumLaneMode.FIVE_LANE => action switch
                 {
-                    DrumsAction.Kick         => 0,
-                    DrumsAction.RedDrum      => 1,
+                    DrumsAction.Kick => 0,
+                    DrumsAction.RedDrum => 1,
                     DrumsAction.YellowCymbal => 2,
-                    DrumsAction.BlueDrum     => 3,
+                    DrumsAction.BlueDrum => 3,
                     DrumsAction.OrangeCymbal => 4,
-                    DrumsAction.GreenDrum    => 5,
-                    _                        => -1
-                };
-            }
+                    DrumsAction.GreenDrum => 5,
+                    _ => -1
+                },
+
+                DrumLaneMode.SIX_LANE => action switch
+                {
+                    DrumsAction.Kick => 0,
+                    DrumsAction.RedCymbal => 1,
+                    DrumsAction.SilverCymbal => 2,
+                    DrumsAction.YellowDrum => 3,
+                    DrumsAction.BlueDrum => 4,
+                    DrumsAction.GreenDrum => 5,
+                    DrumsAction.PurpleCymbal => 6,
+                    _ => -1
+                },
+
+                _ => throw new Exception("Unreachable.")
+            };
 
             bool isDrumFreestyle = IsDrumFreestyle();
 
@@ -364,5 +404,12 @@ namespace YARG.Gameplay.Player
             var frame = new ReplayFrame(Player.Profile, EngineParams, Engine.EngineStats, ReplayInputs.ToArray());
             return (frame, Engine.EngineStats.ConstructReplayStats(Player.Profile.Name));
         }
+    }
+
+    public enum DrumLaneMode
+    {
+        STANDARD,
+        FIVE_LANE,
+        SIX_LANE
     }
 }

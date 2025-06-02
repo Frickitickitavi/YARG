@@ -81,6 +81,18 @@ namespace YARG.Input
             new DrumPadButtonBinding("Drums.Kick", (int) DrumsAction.Kick),
         };
 
+        public static BindingCollection CreateSixLaneDrumsBindings() => new(GameMode.SixLaneDrums)
+        {
+            new DrumPadButtonBinding("SixDrums.RedCymbal",     (int) DrumsAction.RedCymbal),
+            new DrumPadButtonBinding("SixDrums.SilverCymbal",  (int) DrumsAction.SilverCymbal),
+            new DrumPadButtonBinding("SixDrums.YellowPad",     (int) DrumsAction.YellowDrum),
+            new DrumPadButtonBinding("SixDrums.BluePad",       (int) DrumsAction.BlueDrum),
+            new DrumPadButtonBinding("SixDrums.GreenPad",      (int) DrumsAction.GreenDrum),
+            new DrumPadButtonBinding("SixDrums.PurpleCymbal",  (int) DrumsAction.PurpleCymbal),
+
+            new DrumPadButtonBinding("Drums.Kick", (int) DrumsAction.Kick),
+        };
+
         public static BindingCollection CreateProGuitarBindings() => new(GameMode.ProGuitar)
         {
             new IntegerBinding("ProGuitar.String1_Fret", (int) ProGuitarAction.String1_Fret),
@@ -156,6 +168,7 @@ namespace YARG.Input
 
                 GameMode.FourLaneDrums => CreateFourLaneDrumsBindings(),
                 GameMode.FiveLaneDrums => CreateFiveLaneDrumsBindings(),
+                GameMode.SixLaneDrums => CreateSixLaneDrumsBindings(),
 
                 GameMode.ProGuitar => CreateProGuitarBindings(),
                 GameMode.ProKeys => CreateProKeysBindings(),

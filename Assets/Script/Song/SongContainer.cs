@@ -48,6 +48,7 @@ namespace YARG.Song
         ProDrums,
         FiveLaneDrums,
         EliteDrums,
+        SixLaneDrums,
         ProGuitar_17,
         ProGuitar_22,
         ProBass_17,

@@ -23,6 +23,7 @@ namespace YARG.Helpers.Extensions
                 Instrument.ProDrums           => SortAttribute.ProDrums,
                 Instrument.FiveLaneDrums      => SortAttribute.FiveLaneDrums,
                 Instrument.EliteDrums         => SortAttribute.EliteDrums,
+                Instrument.SixLaneDrums       => SortAttribute.SixLaneDrums,
                 Instrument.ProGuitar_17Fret   => SortAttribute.ProGuitar_17,
                 Instrument.ProGuitar_22Fret   => SortAttribute.ProGuitar_22,
                 Instrument.ProBass_17Fret     => SortAttribute.ProBass_17,
@@ -52,6 +53,7 @@ namespace YARG.Helpers.Extensions
                 SortAttribute.ProDrums       => Instrument.ProDrums,
                 SortAttribute.FiveLaneDrums  => Instrument.FiveLaneDrums,
                 SortAttribute.EliteDrums     => Instrument.EliteDrums,
+                SortAttribute.SixLaneDrums   => Instrument.SixLaneDrums,
                 SortAttribute.ProGuitar_17   => Instrument.ProGuitar_17Fret,
                 SortAttribute.ProGuitar_22   => Instrument.ProGuitar_22Fret,
                 SortAttribute.ProBass_17     => Instrument.ProBass_17Fret,
@@ -77,6 +79,7 @@ namespace YARG.Helpers.Extensions
                 Instrument.FourLaneDrums => "drums",
                 Instrument.ProDrums      => "realDrums",
                 Instrument.FiveLaneDrums => "ghDrums",
+                Instrument.SixLaneDrums  => "rrDrums",
 
                 Instrument.ProGuitar_17Fret => "realGuitar",
                 Instrument.ProBass_17Fret   => "realBass",
@@ -102,6 +105,7 @@ namespace YARG.Helpers.Extensions
                 "drums"     => Instrument.FourLaneDrums,
                 "realDrums" => Instrument.ProDrums,
                 "ghDrums"   => Instrument.FiveLaneDrums,
+                "rrDrums"   => Instrument.SixLaneDrums,
 
                 "realGuitar" => Instrument.ProGuitar_17Fret,
                 "realBass"   => Instrument.ProBass_17Fret,

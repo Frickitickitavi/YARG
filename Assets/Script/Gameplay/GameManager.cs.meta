@@ -3,7 +3,20 @@ guid: 5f9d6d58525b4d22961cb5f7264164de
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
+  defaultReferences:
+  - _trackViewManager: {instanceID: 0}
+  - _replayController: {instanceID: 0}
+  - _pauseMenu: {instanceID: 0}
+  - _draggableHud: {instanceID: 0}
+  - _lyricBar: {instanceID: 0}
+  - <VocalTrack>k__BackingField: {instanceID: 0}
+  - _fiveFretGuitarPrefab: {instanceID: 0}
+  - _sixFretGuitarPrefab: {instanceID: 0}
+  - _fourLaneDrumsPrefab: {instanceID: 0}
+  - _fiveLaneDrumsPrefab: {instanceID: 0}
+  - _sixLaneDrumsPrefab: {instanceID: 0}
+  - _proKeysPrefab: {instanceID: 0}
+  - _proGuitarPrefab: {instanceID: 0}
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

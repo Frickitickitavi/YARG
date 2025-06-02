@@ -1397,6 +1397,8 @@ MonoBehaviour:
     type: 3}
   _fiveLaneDrumsPrefab: {fileID: 7912406415472637727, guid: b98748e11cf38534c814f11da4eaa863,
     type: 3}
+  _sixLaneDrumsPrefab: {fileID: 7912406415472637727, guid: 648ed7d5ef353624c8c307de0e3f1d31,
+    type: 3}
   _proKeysPrefab: {fileID: 7381119128095886790, guid: 52322b4e39d4f9349a65c60a07fc1b3a,
     type: 3}
   _proGuitarPrefab: {fileID: 0}

@@ -619,11 +619,12 @@ namespace YARG.Menu.DifficultySelect
 
             return entry.HasInstrument(instrument) || instrument switch
             {
-                // Allow 5 -> 4-lane conversions to be played on 4-lane
+                // Allow 5 -> 4- or 6-lane conversions to be played on 4-lane
                 Instrument.FourLaneDrums or
-                Instrument.ProDrums      => entry.HasInstrument(Instrument.FiveLaneDrums),
-                // Allow 4 -> 5-lane conversions to be played on 5-lane
+                Instrument.ProDrums => entry.HasInstrument(Instrument.FiveLaneDrums),
+                // Allow 4 -> 5- or 6-lane conversions to be played on 5-lane
                 Instrument.FiveLaneDrums => entry.HasInstrument(Instrument.ProDrums),
+                Instrument.SixLaneDrums => entry.HasInstrument(Instrument.FiveLaneDrums) || entry.HasInstrument(Instrument.ProDrums),
                 _ => false
             };
         }
