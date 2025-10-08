@@ -138,7 +138,7 @@ namespace YARG.Menu.MusicLibrary
             _album.text = songEntry.Album;
             _source.text = SongSources.SourceToGameName(songEntry.Source);
             _charter.text = songEntry.Charter;
-            _genre.text = songEntry.Genre;
+            _genre.text = songEntry.Genre + " > " + songEntry.Subgenre;
             _year.text = songEntry.ParsedYear;
 
             // Format and show length

@@ -1,0 +1,335 @@
+{
+  "alternative metal": {
+    "genre": "alternative",
+    "localizations": {
+      "es-ES": "metal alternativo"
+    }
+  },
+  "alternative rock": {
+    "genre": "alternative",
+    "localizations": {
+      "es-ES": "rock alternativo"
+    }
+  },
+
+  "ambient": {
+    "genre": "ambient/drone"
+  },
+  "dark ambient": {
+    "genre": "ambient/drone"
+  },
+  "drone": {
+    "genre": "ambient/drone"
+  },
+
+  "piano ballad": {
+    "genre": "ballad"
+  },
+  "pop ballad": {
+    "genre": "ballad"
+  },
+  "power ballad": {
+    "genre": "ballad"
+  },
+
+  "lullaby": {
+    "genre": "children's music"
+  },
+  "nursery rhyme": {
+    "genre": "children's music"
+  },
+  
+  "ballet": {
+    "genre": "classical"
+  },
+  "concerto": {
+    "genre": "classical"
+  },
+  "dirge": {
+    "genre": "classical"
+  },
+  "étude": {
+    "genre": "classical"
+  },
+  "march": {
+    "genre": "classical"
+  },
+  "minuet": {
+    "genre": "classical"
+  },
+  "opera": {
+    "genre": "classical"
+  },
+  "scherzo": {
+    "genre": "classical"
+  },
+  "symphony": {
+    "genre": "classical"
+  },
+
+  "alternative country": {
+    "genre": "country"
+  },
+  "bluegrass": {
+    "genre": "country"
+  },
+  "newgrass": {
+    "genre": "country"
+  },
+  "outlaw country": {
+    "genre": "country"
+  },
+  "truck-driving country": {
+    "genre": "country"
+  },
+
+  "dance pop": {
+    "genre": "dance"
+  },
+  "edm": {
+    "genre": "dance"
+  },
+  "eurodance": {
+    "genre": "dance"
+  },
+  "italodance": {
+    "genre": "dance"
+  },
+  
+  "black metal": {
+    "genre": "death/black metal"
+  },
+  "blackened death metal": {
+    "genre": "death/black metal"
+  },
+  "blackened thrash metal": {
+    "genre": "death/black metal"
+  },
+  "brutal death metal": {
+    "genre": "death/black metal"
+  },
+  "death metal": {
+    "genre": "death/black metal"
+  },
+  "deathrash": {
+    "genre": "death/black metal"
+  },
+  "viking metal": {
+    "genre": "death/black metal"
+  },
+  "war metal": {
+    "genre": "death/black metal"
+  },
+
+  "disco funk": {
+    "genre": "disco"
+  },
+  "euro disco": {
+    "genre": "disco"
+  },
+  "nu-disco": {
+    "genre": "disco"
+  },
+  
+  "funeral doom metal": {
+    "genre": "doom metal"
+  },
+
+  "brostep": {
+    "genre": "dubstep"
+  },
+  "clownstep": {
+    "genre": "dubstep"
+  },
+  "funkstep": {
+    "genre": "dubstep"
+  },
+  "glitchstep": {
+    "genre": "dubstep"
+  },
+  "hardstep": {
+    "genre": "dubstep"
+  },
+  "metalstep": {
+    "genre": "dubstep"
+  },
+
+  "electronica": {
+    "genre": "electronic"
+  },
+
+  "electronic metal": {
+    "genre": "electronic rock"
+  },
+  "synthrock": {
+    "genre": "electronic"
+  },
+
+  "midwest emo": {
+    "genre": "emo"
+  },
+  "screamo": {
+    "genre": "emo"
+  },
+
+  "acoustic folk": {
+    "genre": "folk"
+  },
+  "folk pop": {
+    "genre": "folk"
+  },
+  "folk rock": {
+    "genre": "folk"
+  },
+  "traditional folk": {
+    "genre": "folk"
+  },
+
+  "jazz fusion": {
+    "genre": "fusion"
+  },
+  "progressive jazz fusion": {
+    "genre": "fusion"
+  },
+
+  "glam metal": {
+    "genre": "glam"
+  },
+  "glam pop": {
+    "genre": "glam"
+  },
+  "glam rock": {
+    "genre": "glam"
+  },
+  "hair metal": {
+    "genre": "glam"
+  },
+  "sleaze metal": {
+    "genre": "glam"
+  },
+
+  "circuit bending": {
+    "genre": "glitch"
+  },
+  "glitchcore": {
+    "genre": "glitch"
+  },
+
+  "blackened deathgrind": {
+    "genre": "grindcore"
+  },
+  "crustgrind": {
+    "genre": "grindcore"
+  },
+  "cybergrind": {
+    "genre": "grindcore"
+  },
+  "deathgrind": {
+    "genre": "grindcore"
+  },
+  "electrogrind": {
+    "genre": "grindcore"
+  },
+  "goregrind": {
+    "genre": "grindcore"
+  },
+  "noisegrind": {
+    "genre": "grindcore"
+  },
+  "queercore": {
+    "genre": "grindcore"
+  },
+  "pornogrind": {
+    "genre": "grindcore"
+  },
+  "power electronics": {
+    "genre": "grindcore"
+  },
+  "powerviolence": {
+    "genre": "grindcore"
+  },
+
+  "extratone": {
+    "genre": "hardcore edm"
+  },
+  "gabber": {
+    "genre": "hardcore edm"
+  },
+  "happy hardcore": {
+    "genre": "hardcore edm"
+  },
+  "hardcore dance": {
+    "genre": "hardcore edm"
+  },
+  "hardstyle": {
+    "genre": "hardcore edm"
+  },
+  "speedcore": {
+    "genre": "hardcore edm"
+  },
+  "splittercore": {
+    "genre": "hardcore edm"
+  },
+
+  "nwobhm": {
+    "genre": "heavy metal"
+  },
+  
+  "bebop": {
+    "genre": "jazz"
+  },
+  "big band jazz": {
+    "genre": "jazz"
+  },
+  "bossa nova": {
+    "genre": "jazz"
+  },
+  "cool jazz": {
+    "genre": "jazz"
+  },
+  "electro-jazz": {
+    "genre": "jazz"
+  },
+  "freeform jazz": {
+    "genre": "jazz"
+  },
+  "hard bop": {
+    "genre": "jazz"
+  },
+  "jazz metal": {
+    "genre": "jazz"
+  },
+  "jazz pop": {
+    "genre": "jazz"
+  },
+  "jazz rock": {
+    "genre": "jazz"
+  },
+  "lounge": {
+    "genre": "jazz"
+  },
+  "modal jazz": {
+    "genre": "jazz"
+  },
+  "modern jazz": {
+    "genre": "jazz"
+  },
+  "nu-jazz": {
+    "genre": "jazz"
+  },
+  "post-bop": {
+    "genre": "jazz"
+  },
+  "progressive big band": {
+    "genre": "jazz"
+  },
+  "ragtime": {
+    "genre": "jazz"
+  },
+  "swing jazz": {
+    "genre": "jazz"
+  },
+  "traditional jazz": {
+    "genre": "jazz"
+  },
+}

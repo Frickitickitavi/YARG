@@ -65,6 +65,16 @@ namespace YARG
                 YargLogger.LogException(ex);
             }
 
+            // Load song sources and icons
+            try
+            {
+                await Genres.LoadGenreMappings(context);
+            }
+            catch (Exception ex)
+            {
+                YargLogger.LogException(ex);
+            }
+
             // Auto connect profiles, using the same order that they were previously connected.
             if (SettingsManager.Settings.ReconnectProfiles.Value)
             {
