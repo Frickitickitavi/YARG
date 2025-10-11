@@ -4,6 +4,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
@@ -23,7 +24,21 @@ namespace YARG.Song
         public class SubgenreMapping
         {
             public string genre;
+            public string capitalized;
             public Dictionary<string, string>? localizations;
+
+            
+            public string Genre => GetLocalizedGenre(genre);
+            public string Subgenre => localizations is null ? capitalized : localizations.GetValueOrDefault(Localization.LocalizationManager.CultureCode, capitalized);
+        }
+
+        private static string GetLocalizedGenre(string genre)
+        {
+            if (genre is null)
+            {
+                return Localization.Localize.Key("Menu.MusicLibrary.Genre.Other");
+            }
+            return Localization.Localize.Key("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS.GetValueOrDefault(genre));
         }
 
         private const string GENRE_COMMIT_URL =
@@ -233,7 +248,7 @@ namespace YARG.Song
             if (GENRE_LOCALIZATION_KEYS.ContainsKey(processedGenre))
             {
                 // We have an official genre, so localize it and return it with no subgenre
-                return (Localization.Localize.KeyFormat("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS[processedGenre]), null);
+                return (Localization.Localize.Key("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS.GetValueOrDefault(processedGenre)), null);
             }
 
             // This isn't an official genre, so we're going to use it as a subgenre
@@ -246,15 +261,8 @@ namespace YARG.Song
             {
                 var mapping = _subgenreMappings[subgenre];
 
-                // Localize the subgenre if applicable
-                if (mapping.localizations is not null && mapping.localizations.ContainsKey(Localization.LocalizationManager.CultureCode))
-                {
-                    subgenre = mapping.localizations[Localization.LocalizationManager.CultureCode];
-                }
-                
-
                 return (
-                    genre: Localization.Localize.KeyFormat("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS[mapping.genre]),
+                    genre: Localization.Localize.Key("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS.GetValueOrDefault(mapping.Genre)),
                     subgenre
                 );
             }
@@ -274,36 +282,36 @@ namespace YARG.Song
                 var magmaMapping = MAGMA_MAPPINGS[(rawGenre, rawSubgenre)];
 
                 // Localize the returned genre directly
-                genre = Localization.Localize.KeyFormat("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS[magmaMapping.genre]);
+                genre = Localization.Localize.Key("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS.GetValueOrDefault(magmaMapping.genre));
 
-                // Subgenre localizations come from Genrelizer
+                // Subgenre localizations and capitalizations come from Genrelizer
                 if (magmaMapping.subgenre is not null)
                 {
                     var magmaSubgenreMapping = _subgenreMappings[magmaMapping.subgenre];
-                    if (magmaSubgenreMapping?.localizations is not null)
+                    if (magmaSubgenreMapping is not null)
                     {
-                        subgenre = magmaSubgenreMapping.localizations.GetValueOrDefault(Localization.LocalizationManager.CultureCode, magmaMapping.subgenre);
-                    }
-                    else
+                        subgenre = magmaSubgenreMapping.Subgenre;
+                    } else
                     {
+                        // Belt-and-suspenders; we shouldn't have any unrecognized subgenres in the Magma mappings
                         subgenre = magmaMapping.subgenre;
                     }
-                }
-                else
-                {
-                    subgenre = magmaMapping.subgenre;
                 }
 
                 return (genre, subgenre);
             }
 
-            // Apply a genre alias, if present
+            // Apply any available aliases
             var aliasedGenre = _genreAliases.GetValueOrDefault(rawGenre, rawGenre);
+            var aliasedSubgenre = _subgenreAliases.GetValueOrDefault(rawSubgenre, rawSubgenre);
 
-            // Also check if the subgenre is the same as the genre (accounting for genre aliases). If so, discard the subgenre
-            // and treat this as a lone genre
-            var subgenreAsGenre = _genreAliases.GetValueOrDefault(rawSubgenre, null);
-            if (subgenreAsGenre == aliasedGenre)
+            // If the genre and subgenre are the same, discard the subgenre and proceed with only the genre.
+            // This includes if either field matches the other after going through that other field's aliases,
+            // so Tech Death > Technical Death Metal is a match (both resolve to the Technical Death Metal
+            // subgenre) and so is IDM > Braindance (both resolve to the IDM genre)
+            var subgenreAsGenre = _genreAliases.GetValueOrDefault(rawSubgenre, rawSubgenre);
+            var genreAsSubgenre = _subgenreAliases.GetValueOrDefault(rawGenre, rawGenre);
+            if (_sanitize(rawGenre) == _sanitize(rawSubgenre) || aliasedGenre == subgenreAsGenre || genreAsSubgenre == aliasedSubgenre)
             {
                 return HandleLoneGenre(aliasedGenre);
             }
@@ -312,56 +320,69 @@ namespace YARG.Song
             if (GENRE_LOCALIZATION_KEYS.ContainsKey(aliasedGenre))
             {
                 // The genre is an official one! Localize it, and then we can move on to the subgenre
-                genre = Localization.Localize.KeyFormat("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS[aliasedGenre]);
+                genre = Localization.Localize.Key("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS.GetValueOrDefault(aliasedGenre));
             }
+            // If the genre is not official, it's probably getting discarded and replaced based on the subgenre mapping.
+            // We'll revisit the original genre if the subgenre is also unrecognized
 
-            // We have a nonstandard genre AND a subgenre. Let's see if we can salvage an official genre from the nonstandard
-            // one by treating it as a subgenre for a moment
-            var genreAsSubgenre = _subgenreAliases.GetValueOrDefault(rawGenre, rawGenre);
+            
+            var sanitizedSubgenre = _sanitize(aliasedSubgenre);
 
-            if (_subgenreMappings.ContainsKey(genreAsSubgenre))
+            // When the genre is Other, the subgenre can override it
+            if (aliasedGenre is OTHER)
             {
-                // Treating the nonstandard genre as a subgenre led us to a mapping! We can use the genre from this mapping
-                // as the final genre. The original nonstandard genre gets discarded, because we'd rather honor the charter's
-                // intended subgenre
-                var surrogateGenre = _subgenreMappings[genreAsSubgenre].genre;
-                genre = Localization.Localize.KeyFormat("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS[surrogateGenre]);
-            }
+                // If the subgenre aliased to a genre, then we can just use that genre (and no subgenre)
+                if (subgenreAsGenre is not null)
+                {
+                    return (subgenreAsGenre, null);
+                }
 
-            // Time to sort out the subgenre. Start by applying an alias, if present
-            var aliasedSubgenre = _subgenreAliases.GetValueOrDefault(rawSubgenre, rawSubgenre);
+                // Otherwise, if the subgenre has a known mapping, then we can use that mapping
+                if (_subgenreMappings.ContainsKey(sanitizedSubgenre))
+                {
+                    var mapping = _subgenreMappings[sanitizedSubgenre];
+                    return (mapping.Genre, mapping.Subgenre);
+                }
+
+                // Otherwise, forget it
+                return (OTHER, sanitizedSubgenre);
+            }
 
             // See if we have a mapping for this subgenre
-            if (_subgenreMappings.ContainsKey(aliasedSubgenre))
+            if (_subgenreMappings.ContainsKey(sanitizedSubgenre))
             {
-                var mapping = _subgenreMappings[aliasedSubgenre];
-
-                // If the raw genre never yielded an official genre, we can defer to the subgenre mapping
-                if (genre is null)
-                {
-                    var genreFromSubgenre = GENRE_LOCALIZATION_KEYS[mapping.genre];
-                    genre = Localization.Localize.KeyFormat("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS[genreFromSubgenre]);
-                }
-
-                if (mapping.localizations is not null)
-                {
-                    subgenre = mapping.localizations.GetValueOrDefault(Localization.LocalizationManager.CultureCode, aliasedSubgenre);
-                } else
-                {
-                    subgenre = aliasedSubgenre;
-                }
+                subgenre = _subgenreMappings.GetValueOrDefault(sanitizedSubgenre)?.Subgenre;
             }
 
             else
             {
                 // The subgenre wasn't recognized, so we'll just use it as-is
-                subgenre = aliasedSubgenre;
+                subgenre = sanitizedSubgenre;
+
+                // If we still haven't figured out a genre, see if treating the original genre as a subgenre gets us a mapping
+                // that we can derive a genre from
+                if (genre is null)
+                {
+                    var genreAsAliasedSubgenre = _subgenreAliases.GetValueOrDefault(rawGenre, rawGenre);
+                    if (_subgenreMappings.ContainsKey(genreAsAliasedSubgenre))
+                    {
+                        // Treating the nonstandard genre as a subgenre led us to a mapping! We can use the genre from this mapping
+                        // as the final genre.
+                        genre = _subgenreMappings.GetValueOrDefault(genreAsAliasedSubgenre)?.Genre;
+                    }
+                }
 
                 // If we never figured out a genre, default to Other
                 genre ??= Localization.Localize.Key("Menu.MusicLibrary.Genre.Other");
             }
 
             return (genre, subgenre);
+        }
+
+        private static string _sanitize(string subgenre)
+        {
+            var textInfo = new CultureInfo(Localization.LocalizationManager.CultureCode).TextInfo;
+            return textInfo.ToTitleCase(subgenre.Trim());
         }
     }
 }

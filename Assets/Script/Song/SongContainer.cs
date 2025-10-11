@@ -26,6 +26,7 @@ namespace YARG.Song
         Album,
         Artist_Album,
         Genre,
+        Subgenre,
         Year,
         Charter,
         Playlist,
@@ -89,6 +90,7 @@ namespace YARG.Song
         private static SongCategory[] _sortArtists = Array.Empty<SongCategory>();
         private static SongCategory[] _sortAlbums = Array.Empty<SongCategory>();
         private static SongCategory[] _sortGenres = Array.Empty<SongCategory>();
+        private static SongCategory[] _sortSubgenres = Array.Empty<SongCategory>();
         private static SongCategory[] _sortYears = Array.Empty<SongCategory>();
         private static SongCategory[] _sortCharters = Array.Empty<SongCategory>();
         private static SongCategory[] _sortPlaylists = Array.Empty<SongCategory>();
@@ -109,6 +111,7 @@ namespace YARG.Song
         public static IReadOnlyDictionary<SortString, List<SongEntry>> Artists => _songCache.Artists;
         public static IReadOnlyDictionary<SortString, List<SongEntry>> Albums => _songCache.Albums;
         public static IReadOnlyDictionary<SortString, List<SongEntry>> Genres => _songCache.Genres;
+        public static IReadOnlyDictionary<SortString, List<SongEntry>> Subgenres => _songCache.Subgenres;
         public static IReadOnlyDictionary<SortString, List<SongEntry>> Charters => _songCache.Charters;
         public static IReadOnlyDictionary<SortString, List<SongEntry>> Playlists => _songCache.Playlists;
         public static IReadOnlyDictionary<SortString, List<SongEntry>> Sources => _songCache.Sources;
@@ -164,6 +167,7 @@ namespace YARG.Song
                 SortAttribute.Artist => _sortArtists,
                 SortAttribute.Album => _sortAlbums,
                 SortAttribute.Genre => _sortGenres,
+                SortAttribute.Subgenre => _sortSubgenres,
                 SortAttribute.Year => _sortYears,
                 SortAttribute.Charter => _sortCharters,
                 SortAttribute.Playlist => _sortPlaylists,
@@ -523,6 +527,7 @@ namespace YARG.Song
             _sortArtists      = Convert(_songCache.Artists, SongAttribute.Artist);
             _sortAlbums       = Convert(_songCache.Albums, SongAttribute.Album);
             _sortGenres       = Convert(_songCache.Genres, SongAttribute.Genre);
+            _sortSubgenres    = Convert(_songCache.Subgenres, SongAttribute.Subgenre);
             _sortCharters     = Convert(_songCache.Charters, SongAttribute.Charter);
             _sortPlaylists    = Convert(_songCache.Playlists, SongAttribute.Playlist);
             _sortSources      = Convert(_songCache.Sources, SongAttribute.Source);

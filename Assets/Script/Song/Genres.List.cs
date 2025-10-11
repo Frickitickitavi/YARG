@@ -33,7 +33,9 @@ namespace YARG.Song
         private const string GLAM = "glam";
         private const string GLITCH = "glitch";
         private const string GRINDCORE = "grindcore";
+        private const string GROOVE_METAL = "groove metal";
         private const string GRUNGE = "grunge";
+        private const string HARD_ROCK = "hard rock";
         private const string HARDCORE_EDM = "hardcore edm";
         private const string HEAVY_METAL = "heavy metal";
         private const string HIP_HOP_RAP = "hip-hop/rap";
@@ -62,6 +64,7 @@ namespace YARG.Song
         private const string POP_ROCK = "pop-rock";
         private const string POST_HARDCORE = "post-hardcore";
         private const string PROGRESSIVE = "progressive";
+        private const string PSYCHEDELIC = "psychedelic";
         private const string PUNK = "punk";
         private const string RNB_SOUL_FUNK = "r&b/soul/funk";
         private const string REGGAE_SKA = "reggae/ska";
@@ -113,7 +116,9 @@ namespace YARG.Song
             { GLAM, "Glam"},
             { GLITCH, "Glitch"},
             { GRINDCORE, "Grindcore"},
+            { GROOVE_METAL, "GrooveMetal" },
             { GRUNGE, "Grunge"},
+            { HARD_ROCK, "HardRock" },
             { HARDCORE_EDM, "HardcoreEDM"},
             { HEAVY_METAL, "HeavyMetal"},
             { HIP_HOP_RAP, "HipHopRap"},
@@ -141,7 +146,8 @@ namespace YARG.Song
             { POP_PUNK, "PopPunk"},
             { POP_ROCK, "PopRock"},
             { POST_HARDCORE, "PostHardcore"},
-            { PROGRESSIVE, "Prog"},
+            { PROGRESSIVE, "Progressive"},
+            { PSYCHEDELIC, "Psychedelic" },
             { PUNK, "Punk"},
             { RNB_SOUL_FUNK, "RnbSoulFunk"},
             { REGGAE_SKA, "ReggaeSka"},
@@ -157,7 +163,7 @@ namespace YARG.Song
             { TRAP, "Trap"},
             { URBAN, "Urban"},
             { WORLD, "World"},
-            { OTHER, "Other"},
+            { OTHER, "Other"}
         };
 
         public static Dictionary<(string genre, string subgenre), (string genre, string subgenre)> MAGMA_MAPPINGS = new(new TupleStringComparer())

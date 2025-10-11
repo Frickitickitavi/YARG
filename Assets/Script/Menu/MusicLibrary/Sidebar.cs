@@ -5,6 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
+using UnityEngine.Video;
 using YARG.Core;
 using YARG.Core.Chart;
 using YARG.Core.Song;
@@ -135,10 +136,12 @@ namespace YARG.Menu.MusicLibrary
         {
             var songEntry = songViewType.SongEntry;
 
+            var (genre, subgenre) = Genres.GetGenresOrDefault(songEntry.Genre, songEntry.Subgenre);
+
             _album.text = songEntry.Album;
             _source.text = SongSources.SourceToGameName(songEntry.Source);
             _charter.text = songEntry.Charter;
-            _genre.text = songEntry.Genre + " > " + songEntry.Subgenre;
+            _genre.text = genre + (string.IsNullOrEmpty(subgenre) ? "" : ("<color=\"grey\">, <size=75%>" + subgenre + "</size>"));
             _year.text = songEntry.ParsedYear;
 
             // Format and show length
