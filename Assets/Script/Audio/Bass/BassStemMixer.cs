@@ -130,7 +130,7 @@ namespace YARG.Audio.BASS
                         YargLogger.LogFormatError("Failed to seek to position: {0}", Bass.LastError);
                     }
 
-                    // Regardless of why we failed to seek, we definitely don't want to play the stem, so mtue it
+                    // Regardless of why we failed to seek, we definitely don't want to play the stem, so mute it
                     channel.SetVolume(0);
                 }
             }
