@@ -118,11 +118,19 @@ namespace YARG.Audio.BASS
             {
                 if (channel.SetPosition(position))
                 {
+                    // Restore the volume, in case we previously failed to seek and muted the stem
                     double volume = GlobalAudioHandler.GetTrueVolume(channel.Stem);
                     channel.SetVolume(volume);
                 } else
                 {
-                    // Failed to seek, so mute
+                    if (Bass.LastError is not Errors.Position)
+                    {
+                        // We only expect seeking to fail due to the position being invalid (if the stem is short).
+                        // If we failed for some other reason, log it
+                        YargLogger.LogFormatError("Failed to seek to position: {0}", Bass.LastError);
+                    }
+
+                    // Regardless of why we failed to seek, we definitely don't want to play the stem, so mtue it
                     channel.SetVolume(0);
                 }
             }
