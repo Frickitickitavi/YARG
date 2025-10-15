@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
 using ManagedBass;
@@ -116,7 +116,15 @@ namespace YARG.Audio.BASS
 
             foreach (var channel in _channels)
             {
-                channel.SetPosition(position);
+                if (channel.SetPosition(position))
+                {
+                    double volume = GlobalAudioHandler.GetTrueVolume(channel.Stem);
+                    channel.SetVolume(volume);
+                } else
+                {
+                    // Failed to seek, so mute
+                    channel.SetVolume(0);
+                }
             }
 
             if (playing)

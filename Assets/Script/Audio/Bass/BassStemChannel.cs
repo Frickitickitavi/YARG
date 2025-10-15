@@ -1,4 +1,4 @@
-using ManagedBass;
+﻿using ManagedBass;
 using ManagedBass.Mix;
 using UnityEngine;
 using YARG.Core.Audio;
@@ -66,7 +66,7 @@ namespace YARG.Audio.BASS
             return _pitchParams.fPitchShift;
         }
 
-        protected override void SetPosition_Internal(double position)
+        protected override bool SetPosition_Internal(double position)
         {
             BassMix.SplitStreamReset(_sourceHandle);
 
@@ -74,7 +74,7 @@ namespace YARG.Audio.BASS
             if (bytes < 0)
             {
                 YargLogger.LogFormatError("Failed to get byte position at {0}!", position);
-                return;
+                return false;
             }
 
             if (_streamHandles.PitchFX != 0)
@@ -83,11 +83,7 @@ namespace YARG.Audio.BASS
                 bytes += GlobalAudioHandler.WHAMMY_FFT_DEFAULT * 2;
             }
 
-            bool success = BassMix.ChannelSetPosition(_streamHandles.Stream, bytes, PositionFlags.Bytes | PositionFlags.MixerReset);
-            if (!success)
-            {
-                YargLogger.LogFormatError("Failed to seek to position {0}!", position);
-            }
+            return BassMix.ChannelSetPosition(_streamHandles.Stream, bytes, PositionFlags.Bytes | PositionFlags.MixerReset);
         }
 
         protected override double GetPosition_Internal()
