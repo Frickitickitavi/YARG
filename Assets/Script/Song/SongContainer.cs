@@ -624,6 +624,23 @@ namespace YARG.Song
                             }
                             break;
                         }
+                        case SongAttribute.Subgenre:
+                        {
+                            var subgenre = node.Value[0].Subgenre;
+                            if (subgenre.Length > 0 && char.IsLower(subgenre[0]))
+                            {
+                                key = char.ToUpperInvariant(subgenre[0]).ToString();
+                                if (subgenre.Length > 1)
+                                {
+                                    key += subgenre[1..];
+                                }
+                            }
+                            else
+                            {
+                                key = subgenre;
+                            }
+                            break;
+                        }
                         case SongAttribute.Playlist:
                             key = node.Value[0].Playlist;
                             break;

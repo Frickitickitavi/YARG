@@ -36,7 +36,8 @@ namespace YARG.Song
         {
             if (genre is null)
             {
-                return Localization.Localize.Key("Menu.MusicLibrary.Genre.Other");
+                // This can only happen if Genrelizer's data is malformed
+                return Localization.Localize.Key("Menu.MusicLibrary.Genre.UnknownGenre");
             }
             return Localization.Localize.Key("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS.GetValueOrDefault(genre));
         }
@@ -226,7 +227,7 @@ namespace YARG.Song
                 // If neither value is provided, return nothing
                 if (string.IsNullOrEmpty(rawSubgenre))
                 {
-                    return (null, null);
+                    return (Localization.Localize.Key("Menu.MusicLibrary.Genre.UnknownGenre"), null);
                 }
 
                 // If only a subgenre is provided (not expected), treat it as the genre
