@@ -250,7 +250,8 @@ namespace YARG.Menu.MusicLibrary
             {
                 foreach (var entry in list.Value)
                 {
-                    var subgenre = entry.Subgenre;
+                    var subgenre = string.IsNullOrEmpty(entry.Subgenre) ? entry.Genre : entry.Subgenre;
+
                     if (!sorted.Subgenres.TryGetValue(subgenre, out var category))
                     {
                         sorted.Subgenres.Add(subgenre, category = new List<SongEntry>());

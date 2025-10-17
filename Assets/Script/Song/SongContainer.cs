@@ -617,7 +617,7 @@ namespace YARG.Song
                             var genre = node.Value[0].Genre;
                             if (genre.Length > 0 && char.IsLower(genre[0]))
                             {
-                                key = char.ToUpperInvariant(genre[0]).ToString();
+                                key = genre[0].ToString();
                                 if (genre.Length > 1)
                                 {
                                     key += genre[1..];
@@ -631,10 +631,10 @@ namespace YARG.Song
                         }
                         case SongAttribute.Subgenre:
                         {
-                            var subgenre = node.Value[0].Subgenre;
+                            var subgenre = string.IsNullOrEmpty(node.Value[0].Subgenre) ? node.Value[0].Genre : node.Value[0].Subgenre;
                             if (subgenre.Length > 0 && char.IsLower(subgenre[0]))
                             {
-                                key = char.ToUpperInvariant(subgenre[0]).ToString();
+                                key = subgenre[0].ToString();
                                 if (subgenre.Length > 1)
                                 {
                                     key += subgenre[1..];
