@@ -1,20 +1,22 @@
-﻿using System.Collections.Generic;
-using YARG.Core.Song.Cache;
-using YARG.Core.Song;
+﻿using Cysharp.Threading.Tasks;
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using YARG.Helpers.Extensions;
-using YARG.Settings;
-using YARG.Helpers;
-using Cysharp.Threading.Tasks;
-using YARG.Menu.MusicLibrary;
-using YARG.Core.Logging;
+using UniRx;
 using YARG.Core;
-using YARG.Player;
-using YARG.Localization;
-using YARG.Scores;
-using YARG.Core.Utility;
+using YARG.Core.Chart;
 using YARG.Core.Game;
+using YARG.Core.Logging;
+using YARG.Core.Song;
+using YARG.Core.Song.Cache;
+using YARG.Core.Utility;
+using YARG.Helpers;
+using YARG.Helpers.Extensions;
+using YARG.Localization;
+using YARG.Menu.MusicLibrary;
+using YARG.Player;
+using YARG.Scores;
+using YARG.Settings;
 
 namespace YARG.Song
 {
@@ -84,6 +86,7 @@ namespace YARG.Song
     public static class SongContainer
     {
         private static SongCache _songCache = new();
+        private static SortedSongs _sortedSongs = new();
         private static SongEntry[] _songs = Array.Empty<SongEntry>();
 
         private static SongCategory[] _sortTitles = Array.Empty<SongCategory>();
@@ -104,19 +107,19 @@ namespace YARG.Song
         private static SongCategory[] _sortStars = Array.Empty<SongCategory>();
         private static readonly Dictionary<SongEntry, StarAmount> _runtimeStars = new();
 
-        public static IReadOnlyDictionary<string, List<SongEntry>> Titles => _songCache.Titles;
-        public static IReadOnlyDictionary<string, List<SongEntry>> Years => _songCache.Years;
-        public static IReadOnlyDictionary<string, List<SongEntry>> SongLengths => _songCache.SongLengths;
-        public static IReadOnlyDictionary<DateTime, List<SongEntry>> AddedDates => _songCache.DatesAdded;
-        public static IReadOnlyDictionary<SortString, List<SongEntry>> Artists => _songCache.Artists;
-        public static IReadOnlyDictionary<SortString, List<SongEntry>> Albums => _songCache.Albums;
-        public static IReadOnlyDictionary<SortString, List<SongEntry>> Genres => _songCache.Genres;
-        public static IReadOnlyDictionary<SortString, List<SongEntry>> Subgenres => _songCache.Subgenres;
-        public static IReadOnlyDictionary<SortString, List<SongEntry>> Charters => _songCache.Charters;
-        public static IReadOnlyDictionary<SortString, List<SongEntry>> Playlists => _songCache.Playlists;
-        public static IReadOnlyDictionary<SortString, List<SongEntry>> Sources => _songCache.Sources;
-        public static IReadOnlyDictionary<SortString, SortedDictionary<SortString, List<SongEntry>>> ArtistAlbums => _songCache.ArtistAlbums;
-        public static IReadOnlyDictionary<Instrument, SortedDictionary<int, List<SongEntry>>> Instruments => _songCache.Instruments;
+        public static IReadOnlyDictionary<string, List<SongEntry>> Titles => _sortedSongs.Titles;
+        public static IReadOnlyDictionary<string, List<SongEntry>> Years => _sortedSongs.Years;
+        public static IReadOnlyDictionary<string, List<SongEntry>> SongLengths => _sortedSongs.SongLengths;
+        public static IReadOnlyDictionary<DateTime, List<SongEntry>> AddedDates => _sortedSongs.DatesAdded;
+        public static IReadOnlyDictionary<SortString, List<SongEntry>> Artists => _sortedSongs.Artists;
+        public static IReadOnlyDictionary<SortString, List<SongEntry>> Albums => _sortedSongs.Albums;
+        public static IReadOnlyDictionary<SortString, List<SongEntry>> Genres => _sortedSongs.Genres;
+        public static IReadOnlyDictionary<SortString, List<SongEntry>> Subgenres => _sortedSongs.Subgenres;
+        public static IReadOnlyDictionary<SortString, List<SongEntry>> Charters => _sortedSongs.Charters;
+        public static IReadOnlyDictionary<SortString, List<SongEntry>> Playlists => _sortedSongs.Playlists;
+        public static IReadOnlyDictionary<SortString, List<SongEntry>> Sources => _sortedSongs.Sources;
+        public static IReadOnlyDictionary<SortString, SortedDictionary<SortString, List<SongEntry>>> ArtistAlbums => _sortedSongs.ArtistAlbums;
+        public static IReadOnlyDictionary<Instrument, SortedDictionary<int, List<SongEntry>>> Instruments => _sortedSongs.Instruments;
 
         public static int Count => _songs.Length;
         public static IReadOnlyDictionary<HashWrapper, List<SongEntry>> SongsByHash => _songCache.Entries;
@@ -141,6 +144,8 @@ namespace YARG.Song
                     PathHelper.BadSongsPath,
                     SettingsManager.Settings.UseFullDirectoryForPlaylists.Value,
                     directories);
+
+                SongSorting.SortEntries(_songCache, _sortedSongs);
             });
 
             while (task.Status == UniTaskStatus.Pending)
@@ -250,7 +255,7 @@ namespace YARG.Song
                         var set = new HashSet<SongEntry>();
                         foreach (var ins in player.Profile.GameMode.PossibleInstruments())
                         {
-                            foreach (var list in _songCache.Instruments[ins].Values)
+                            foreach (var list in _sortedSongs.Instruments[ins].Values)
                             {
                                 foreach (var entry in list)
                                 {
@@ -524,31 +529,31 @@ namespace YARG.Song
         {
             _songs = SetAllSongs(_songCache.Entries);
 
-            _sortArtists      = Convert(_songCache.Artists, SongAttribute.Artist);
-            _sortAlbums       = Convert(_songCache.Albums, SongAttribute.Album);
-            _sortGenres       = Convert(_songCache.Genres, SongAttribute.Genre);
-            _sortSubgenres    = Convert(_songCache.Subgenres, SongAttribute.Subgenre);
-            _sortCharters     = Convert(_songCache.Charters, SongAttribute.Charter);
-            _sortPlaylists    = Convert(_songCache.Playlists, SongAttribute.Playlist);
-            _sortSources      = Convert(_songCache.Sources, SongAttribute.Source);
-            _sortArtistAlbums = Combine(_songCache.ArtistAlbums);
+            _sortArtists      = Convert(_sortedSongs.Artists, SongAttribute.Artist);
+            _sortAlbums       = Convert(_sortedSongs.Albums, SongAttribute.Album);
+            _sortGenres       = Convert(_sortedSongs.Genres, SongAttribute.Genre);
+            _sortSubgenres    = Convert(_sortedSongs.Subgenres, SongAttribute.Subgenre);
+            _sortCharters     = Convert(_sortedSongs.Charters, SongAttribute.Charter);
+            _sortPlaylists    = Convert(_sortedSongs.Playlists, SongAttribute.Playlist);
+            _sortSources      = Convert(_sortedSongs.Sources, SongAttribute.Source);
+            _sortArtistAlbums = Combine(_sortedSongs.ArtistAlbums);
 
-            _sortTitles       = Cast(_songCache.Titles);
-            _sortYears        = Cast(_songCache.Years);
-            _sortSongLengths  = Cast(_songCache.SongLengths);
+            _sortTitles       = Cast(_sortedSongs.Titles);
+            _sortYears        = Cast(_sortedSongs.Years);
+            _sortSongLengths  = Cast(_sortedSongs.SongLengths);
             _playables = null;
 
-            _sortDatesAdded = new SongCategory[_songCache.DatesAdded.Count];
+            _sortDatesAdded = new SongCategory[_sortedSongs.DatesAdded.Count];
             {
                 int index = 0;
-                foreach (var node in _songCache.DatesAdded)
+                foreach (var node in _sortedSongs.DatesAdded)
                 {
                     _sortDatesAdded[index++] = new(node.Key.ToLongDateString(), node.Value.ToArray(), node.Key.ToString("y"));
                 }
             }
 
             _sortInstruments.Clear();
-            foreach (var instrument in _songCache.Instruments)
+            foreach (var instrument in _sortedSongs.Instruments)
             {
                 try
                 {
