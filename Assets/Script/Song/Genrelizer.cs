@@ -12,11 +12,12 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using YARG.Core.Logging;
+using YARG.Core.Song;
 using YARG.Helpers;
 
 namespace YARG.Song
 {
-    public static partial class Genres
+    public static partial class Genrelizer
     {
         [Serializable]
         // This is a serialized class; naming conventions are JSON's, not C#'s
@@ -30,6 +31,16 @@ namespace YARG.Song
             
             public string Genre => GetLocalizedGenre(genre);
             public string Subgenre => localizations is null ? capitalized : localizations.GetValueOrDefault(Localization.LocalizationManager.CultureCode, capitalized);
+        }
+
+        public static void GenrelizeAll(SongCache cache)
+        {
+            foreach (var list in cache.Entries)
+            {
+                foreach (var songEntry in list.Value) {
+                    (songEntry.Genre, songEntry.Subgenre) = GetGenresOrDefault(songEntry.Genre, songEntry.Subgenre);
+                }
+            }
         }
 
         private static string GetLocalizedGenre(string genre)
@@ -220,14 +231,17 @@ namespace YARG.Song
             }
         }
 
-        public static (string? genre, string? subgenre) GetGenresOrDefault(string? rawGenre, string? rawSubgenre)
+        public static (SortString genre, SortString subgenre) GetGenresOrDefault(string? rawGenre, string? rawSubgenre)
         {
             if (string.IsNullOrEmpty(rawGenre))
             {
                 // If neither value is provided, return nothing
                 if (string.IsNullOrEmpty(rawSubgenre))
                 {
-                    return (Localization.Localize.Key("Menu.MusicLibrary.Genre.UnknownGenre"), null);
+                    return (
+                        new(Localization.Localize.Key("Menu.MusicLibrary.Genre.UnknownGenre")),
+                        new(string.Empty)
+                    );
                 }
 
                 // If only a subgenre is provided (not expected), treat it as the genre
@@ -242,14 +256,17 @@ namespace YARG.Song
             return HandleGenreSubgenrePair(rawGenre, rawSubgenre);
         }
 
-        private static (string genre, string? subgenre) HandleLoneGenre(string rawGenre) {
+        private static (SortString genre, SortString subgenre) HandleLoneGenre(string rawGenre) {
             // Apply any genre alias, if present
             var processedGenre = _genreAliases.GetValueOrDefault(rawGenre, rawGenre);
 
             if (GENRE_LOCALIZATION_KEYS.ContainsKey(processedGenre))
             {
                 // We have an official genre, so localize it and return it with no subgenre
-                return (Localization.Localize.Key("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS.GetValueOrDefault(processedGenre)), null);
+                return (
+                    new(Localization.Localize.Key("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS.GetValueOrDefault(processedGenre))),
+                    new(string.Empty)
+                );
             }
 
             // This isn't an official genre, so we're going to use it as a subgenre
@@ -263,19 +280,22 @@ namespace YARG.Song
                 var mapping = _subgenreMappings[subgenre];
 
                 return (
-                    genre: Localization.Localize.Key("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS.GetValueOrDefault(mapping.Genre)),
-                    subgenre
+                    new(Localization.Localize.Key("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS.GetValueOrDefault(mapping.Genre))),
+                    new(mapping.Subgenre)
                 );
             }
 
             // Not a known subgenre, so categorize as "other"
-            return (Localization.Localize.Key("Menu.MusicLibrary.Genre.Other"), subgenre);
+            return (
+                new(Localization.Localize.Key("Menu.MusicLibrary.Genre.Other")),
+                new(subgenre)
+            );
         }
 
-        private static (string genre, string? subgenre) HandleGenreSubgenrePair(string rawGenre, string rawSubgenre)
+        private static (SortString genre, SortString subgenre) HandleGenreSubgenrePair(string rawGenre, string rawSubgenre)
         {
-            string genre = null;
-            string subgenre = null;
+            string genre = string.Empty;
+            string subgenre = string.Empty;
 
             // Check if this is a telltale value pair from Magma, for which we have a ready-to-go mapping
             if (MAGMA_MAPPINGS.ContainsKey((rawGenre, rawSubgenre)))
@@ -294,12 +314,13 @@ namespace YARG.Song
                         subgenre = magmaSubgenreMapping.Subgenre;
                     } else
                     {
-                        // Belt-and-suspenders; we shouldn't have any unrecognized subgenres in the Magma mappings
-                        subgenre = magmaMapping.subgenre;
+                        // Belt-and-suspenders; we shouldn't have any unrecognized or unsanitized subgenres
+                        // in the hardcoded Magma mappings
+                        subgenre = _sanitize(magmaMapping.subgenre);
                     }
                 }
 
-                return (genre, subgenre);
+                return (new(genre), new(subgenre));
             }
 
             // Apply any available aliases
@@ -335,18 +356,21 @@ namespace YARG.Song
                 // If the subgenre aliased to a genre, then we can just use that genre (and no subgenre)
                 if (subgenreAsGenre is not null)
                 {
-                    return (subgenreAsGenre, null);
+                    return (new(subgenreAsGenre), new(string.Empty));
                 }
 
                 // Otherwise, if the subgenre has a known mapping, then we can use that mapping
                 if (_subgenreMappings.ContainsKey(sanitizedSubgenre))
                 {
                     var mapping = _subgenreMappings[sanitizedSubgenre];
-                    return (mapping.Genre, mapping.Subgenre);
+                    return (new(mapping.Genre), new(mapping.Subgenre));
                 }
 
-                // Otherwise, forget it
-                return (OTHER, sanitizedSubgenre);
+                // Otherwise, forget it; this really is getting filed under Other
+                return (
+                    new(Localization.Localize.Key("Menu.MusicLibrary.Genre.Other")),
+                    new(sanitizedSubgenre)
+                );
             }
 
             // See if we have a mapping for this subgenre
@@ -360,24 +384,26 @@ namespace YARG.Song
                 // The subgenre wasn't recognized, so we'll just use it as-is
                 subgenre = sanitizedSubgenre;
 
-                // If we still haven't figured out a genre, see if treating the original genre as a subgenre gets us a mapping
-                // that we can derive a genre from
-                if (genre is null)
+                // If we still haven't figured out a genre...
+                if (string.IsNullOrEmpty(genre))
                 {
+                    // ...our last resort is to see if treating the original genre
+                    // as a subgenre gets us a mapping that we can derive a genre from
                     var genreAsAliasedSubgenre = _subgenreAliases.GetValueOrDefault(rawGenre, rawGenre);
                     if (_subgenreMappings.ContainsKey(genreAsAliasedSubgenre))
                     {
-                        // Treating the nonstandard genre as a subgenre led us to a mapping! We can use the genre from this mapping
-                        // as the final genre.
+                        // That led us to a mapping! We can use the genre from this mapping as the final genre.
                         genre = _subgenreMappings.GetValueOrDefault(genreAsAliasedSubgenre)?.Genre;
                     }
+                    else
+                    {
+                        // That didn't work either, so just default to Other
+                        genre = Localization.Localize.Key("Menu.MusicLibrary.Genre.Other");
+                    }
                 }
-
-                // If we never figured out a genre, default to Other
-                genre ??= Localization.Localize.Key("Menu.MusicLibrary.Genre.Other");
             }
 
-            return (genre, subgenre);
+            return (new(genre), new(subgenre));
         }
 
         private static string _sanitize(string subgenre)

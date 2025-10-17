@@ -68,7 +68,7 @@ namespace YARG
             // Load song sources and icons
             try
             {
-                await Genres.LoadGenreMappings(context);
+                await Genrelizer.LoadGenreMappings(context);
             }
             catch (Exception ex)
             {

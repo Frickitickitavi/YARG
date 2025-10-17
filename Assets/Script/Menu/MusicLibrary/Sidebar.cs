@@ -136,12 +136,10 @@ namespace YARG.Menu.MusicLibrary
         {
             var songEntry = songViewType.SongEntry;
 
-            var (genre, subgenre) = Genres.GetGenresOrDefault(songEntry.Genre, songEntry.Subgenre);
-
             _album.text = songEntry.Album;
             _source.text = SongSources.SourceToGameName(songEntry.Source);
             _charter.text = songEntry.Charter;
-            _genre.text = genre + (string.IsNullOrEmpty(subgenre) ? "" : ("<color=\"grey\">, <size=75%>" + subgenre + "</size>"));
+            _genre.text = songEntry.Genre + (string.IsNullOrEmpty(songEntry.Subgenre) ? "" : ("<color=\"grey\">, <size=75%>" + songEntry.Subgenre + "</size>"));
             _year.text = songEntry.ParsedYear;
 
             // Format and show length

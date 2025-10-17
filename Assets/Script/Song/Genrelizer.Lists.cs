@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace YARG.Song
 {
-    public static partial class Genres
+    public static partial class Genrelizer
     {
         // Official
         private const string ALTERNATIVE = "alternative";

@@ -139,13 +139,11 @@ namespace YARG.Song
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
             var task = UniTask.RunOnThreadPool(() =>
             {
-                _songCache = CacheHandler.RunScan(quick,
+                _songCache =  CacheHandler.RunScan(quick,
                     PathHelper.SongCachePath,
                     PathHelper.BadSongsPath,
                     SettingsManager.Settings.UseFullDirectoryForPlaylists.Value,
                     directories);
-
-                SongSorting.SortEntries(_songCache, _sortedSongs);
             });
 
             while (task.Status == UniTaskStatus.Pending)
@@ -156,6 +154,8 @@ namespace YARG.Song
                 }
                 await UniTask.NextFrame();
             }
+            Genrelizer.GenrelizeAll(_songCache);
+            SongSorting.SortEntries(_songCache, _sortedSongs);
             FillContainers();
             stopwatch.Stop();
 
