@@ -37,8 +37,20 @@ namespace YARG.Song
         {
             foreach (var list in cache.Entries)
             {
-                foreach (var songEntry in list.Value) {
+                foreach (var songEntry in list.Value)
+                {
                     (songEntry.Genre, songEntry.Subgenre) = GetGenresOrDefault(songEntry.Genre, songEntry.Subgenre);
+                }
+            }
+        }
+
+        public static void DegenrelizeAll(SongCache cache)
+        {
+            foreach (var list in cache.Entries)
+            {
+                foreach (var songEntry in list.Value)
+                {
+                    (songEntry.Genre, songEntry.Subgenre) = (songEntry.RawGenre, songEntry.RawSubgenre);
                 }
             }
         }
@@ -290,10 +302,10 @@ namespace YARG.Song
             {
                 /* Usually, when a genre name contains one or more slashes, it fits one of these two patterns:
                  *
-                 * A) A list of several, often unrelated, genre names (e.g. "Hard Rock/Heavy Metal" 
-                 *      or "Funk / Disco / Polka")
-                 * B) A single genre with multiple adjectives or modifiers (e.g. "Melodic/Neoclassical Metal"
-                 *      or "Smooth/Cool/Soft Jazz"
+                 * A) List of several, often unrelated, genre names (e.g. "Hard Rock/Heavy Metal" or 
+                 *      "Funk / Disco / Polka")
+                 * B) Single genre with multiple adjectives or modifiers (e.g. "Melodic/Neoclassical Metal"
+                 *      or "Smooth/Cool/Soft Jazz")
                  *
                  * In Pattern A, we can pick one genre and run with it. It's reasonable to assume that, if any
                  * of the genres stand out as the foremost description of the song, it's probably the first one
@@ -373,8 +385,8 @@ namespace YARG.Song
                 }
             }
 
-                // We've exhausted all of our options, so default to other
-                return (
+            // We've exhausted all of our options, so default to Other
+            return (
                 new(Localization.Localize.Key("Menu.MusicLibrary.Genre.Other")),
                 new(subgenre)
             );

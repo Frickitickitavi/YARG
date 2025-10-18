@@ -162,6 +162,7 @@ namespace YARG.Menu.MusicLibrary
 
         internal static unsafe void SortEntries(SongCache cache, SortedSongs sorted)
         {
+            sorted.Clear();
             Parallel.For(0, SORTERS.Length, i => SORTERS[i](cache, sorted));
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using UnityEngine.Analytics;
 using YARG.Core;
 using YARG.Core.Song;
 
@@ -38,5 +39,22 @@ namespace YARG.Menu.MusicLibrary
 
         [NonSerialized]
         public readonly SortedDictionary<Instrument, SortedDictionary<int, List<SongEntry>>> Instruments = new();
+
+        public void Clear()
+        {
+            Titles.Clear();
+            Years.Clear();
+            Artists.Clear();
+            Albums.Clear();
+            Genres.Clear();
+            Subgenres.Clear();
+            Charters.Clear();
+            Playlists.Clear();
+            Sources.Clear();
+            SongLengths.Clear();
+            DatesAdded.Clear();
+            ArtistAlbums.Clear();
+            Instruments.Clear();
+        }
     }
 }

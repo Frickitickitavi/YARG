@@ -155,7 +155,13 @@ namespace YARG.Song
                 await UniTask.NextFrame();
             }
 
-            Genrelizer.GenrelizeAll(_songCache);
+            if (SettingsManager.Settings.StandardizeGenres.Value)
+            {
+                Genrelizer.GenrelizeAll(_songCache);
+            } else
+            {
+                Genrelizer.DegenrelizeAll(_songCache);
+            }
             SongSorting.SortEntries(_songCache, _sortedSongs);
             FillContainers();
             stopwatch.Stop();
