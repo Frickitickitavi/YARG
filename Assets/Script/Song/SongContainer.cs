@@ -154,6 +154,7 @@ namespace YARG.Song
                 }
                 await UniTask.NextFrame();
             }
+
             Genrelizer.GenrelizeAll(_songCache);
             SongSorting.SortEntries(_songCache, _sortedSongs);
             FillContainers();

@@ -285,8 +285,96 @@ namespace YARG.Song
                 );
             }
 
-            // Not a known subgenre, so categorize as "other"
-            return (
+            // Not a known subgenre. If it contains any slashes, there are a couple more things we can try
+            if (subgenre.Contains('/'))
+            {
+                /* Usually, when a genre name contains one or more slashes, it fits one of these two patterns:
+                 *
+                 * A) A list of several, often unrelated, genre names (e.g. "Hard Rock/Heavy Metal" 
+                 *      or "Funk / Disco / Polka")
+                 * B) A single genre with multiple adjectives or modifiers (e.g. "Melodic/Neoclassical Metal"
+                 *      or "Smooth/Cool/Soft Jazz"
+                 *
+                 * In Pattern A, we can pick one genre and run with it. It's reasonable to assume that, if any
+                 * of the genres stand out as the foremost description of the song, it's probably the first one
+                 * in the list. Thus, we'll try matching the content of the string that comes before the first
+                 * slash. In the Pattern A examples, this would lead us to "Hard Rock" (a genre in its own right)
+                 * and "Funk" (a subgenre that maps to R&B/Soul/Funk), respectively.
+                 * 
+                 * Applying the same logic to Pattern B strings doesn't yield results though: in the given examples,
+                 * we would wind up with "Melodic" and "Smooth", neither of which is a genre of any kind. In this case,
+                 * we care more about the noun at the end of the string ("Metal" and "Jazz"). So if Pattern A didn't
+                 * yield results, we'll try matching the content that comes after the *last* string. This yields
+                 * "Neoclassical Metal" and "Soft Jazz", which are each mapped subgenres.
+                 */
+
+                // Attempt Pattern A
+                var beforeFirstSlash = subgenre[0..subgenre.IndexOf('/')].TrimEnd();
+                var beforeFirstSlashAsGenre = _genreAliases.GetValueOrDefault(beforeFirstSlash, beforeFirstSlash);
+                if (GENRE_LOCALIZATION_KEYS.ContainsKey(beforeFirstSlashAsGenre)) {
+                    return (
+                        new(Localization.Localize.Key("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS.GetValueOrDefault(beforeFirstSlashAsGenre))),
+                        new(_sanitize(subgenre))
+                    );
+                }
+                var beforeFirstSlashAsSubgenre = _subgenreAliases.GetValueOrDefault(beforeFirstSlash, beforeFirstSlash);
+                if (_subgenreMappings.ContainsKey(beforeFirstSlashAsSubgenre)) {
+                    var mapping = _subgenreMappings[beforeFirstSlashAsSubgenre];
+                    return (
+                        new (mapping.Genre),
+                        new (mapping.Subgenre)
+                    );
+                }
+
+                // Attempt Pattern B
+                var afterLastSlash = subgenre.Substring(subgenre.LastIndexOf('/') + 1).TrimStart();
+                var afterLastSlashAsGenre = _genreAliases.GetValueOrDefault(afterLastSlash, afterLastSlash);
+                if (GENRE_LOCALIZATION_KEYS.ContainsKey(afterLastSlashAsGenre))
+                {
+                    return (
+                        new(Localization.Localize.Key("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS.GetValueOrDefault(afterLastSlashAsGenre))),
+                        new(_sanitize(subgenre))
+                    );
+                }
+                var afterLastSlashAsSubgenre = _subgenreAliases.GetValueOrDefault(afterLastSlash, afterLastSlash);
+                if (_subgenreMappings.ContainsKey(afterLastSlashAsSubgenre))
+                {
+                    var mapping = _subgenreMappings[afterLastSlashAsSubgenre];
+                    return (
+                        new(mapping.Genre),
+                        new(mapping.Subgenre)
+                    );
+                }
+            }
+
+            if (subgenre.Contains(','))
+            {
+                /* 
+                 * Pattern A can also occur with commas rather than slashes, like "Hard Rock, Heavy Metal", so try
+                 * that too. Pattern B generally doesn't appear with commas, so don't bother with that.
+                 */
+                var beforeFirstComma = subgenre[0..subgenre.IndexOf(',')].TrimEnd();
+                var beforeFirstCommaAsGenre = _genreAliases.GetValueOrDefault(beforeFirstComma, beforeFirstComma);
+                if (GENRE_LOCALIZATION_KEYS.ContainsKey(beforeFirstCommaAsGenre))
+                {
+                    return (
+                        new(Localization.Localize.Key("Menu.MusicLibrary.Genre", GENRE_LOCALIZATION_KEYS.GetValueOrDefault(beforeFirstCommaAsGenre))),
+                        new(_sanitize(subgenre))
+                    );
+                }
+                var beforeFirstCommaAsSubgenre = _subgenreAliases.GetValueOrDefault(beforeFirstComma, beforeFirstComma);
+                if (_subgenreMappings.ContainsKey(beforeFirstCommaAsSubgenre))
+                {
+                    var mapping = _subgenreMappings[beforeFirstCommaAsSubgenre];
+                    return (
+                        new(mapping.Genre),
+                        new(mapping.Subgenre)
+                    );
+                }
+            }
+
+                // We've exhausted all of our options, so default to other
+                return (
                 new(Localization.Localize.Key("Menu.MusicLibrary.Genre.Other")),
                 new(subgenre)
             );
