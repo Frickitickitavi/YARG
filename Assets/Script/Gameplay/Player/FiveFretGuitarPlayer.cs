@@ -27,6 +27,15 @@ namespace YARG.Gameplay.Player
 
         private const int SHIFT_INDICATOR_MEASURES_BEFORE = 5;
 
+        public static Dictionary<int, int> DEFAULT_HIGHWAY_ORDERING = new()
+        {
+            { (int)FiveFretGuitarFret.Green, 0 },
+            { (int)FiveFretGuitarFret.Red, 1 },
+            { (int)FiveFretGuitarFret.Yellow, 2 },
+            { (int)FiveFretGuitarFret.Blue, 3 },
+            { (int)FiveFretGuitarFret.Orange, 4 }
+        };
+
         public override bool ShouldUpdateInputsOnResume => true;
 
         private static float[] GuitarStarMultiplierThresholds => new[]
@@ -155,9 +164,8 @@ namespace YARG.Gameplay.Player
                 Player.ThemePreset,
                 VisualStyle.FiveFretGuitar,
                 Player.ColorProfile.FiveFretGuitar,
+                DEFAULT_HIGHWAY_ORDERING,
                 Player.Profile.LeftyFlip,
-                false, // Not applicable to five fret
-                false, // Not applicable to five fret
                 false  // Not applicable to five fret
                 );
 
@@ -392,7 +400,7 @@ namespace YARG.Gameplay.Player
 
                 if (note.Fret != (int) FiveFretGuitarFret.Open)
                 {
-                    _fretArray.PlayHitAnimation(note.Fret - 1);
+                    _fretArray.PlayHitAnimation(note.Fret);
                 }
                 else
                 {
@@ -480,7 +488,7 @@ namespace YARG.Gameplay.Player
 
                 if (note.Fret != (int) FiveFretGuitarFret.Open)
                 {
-                    _fretArray.SetSustained(note.Fret - 1, true);
+                    _fretArray.SetSustained(note.Fret, true);
                 }
 
                 _sustainCount++;
@@ -501,7 +509,7 @@ namespace YARG.Gameplay.Player
 
                 if (note.Fret != (int) FiveFretGuitarFret.Open)
                 {
-                    _fretArray.SetSustained(note.Fret - 1, false);
+                    _fretArray.SetSustained(note.Fret, false);
                 }
 
                 _sustainCount--;

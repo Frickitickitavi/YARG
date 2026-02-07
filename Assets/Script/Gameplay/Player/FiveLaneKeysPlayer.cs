@@ -28,6 +28,18 @@ namespace YARG.Assets.Script.Gameplay.Player
 
         private const int SHIFT_INDICATOR_MEASURES_BEFORE = 5;
 
+        public Dictionary<int, int> NoteToPosition => _fretArray.NoteToPosition;
+
+        public static Dictionary<int, int> OPEN_LANE_HIGHWAY_ORDERING = new()
+        {
+            { (int)FiveFretGuitarFret.Open, 0 },
+            { (int)FiveFretGuitarFret.Green, 1 },
+            { (int)FiveFretGuitarFret.Red, 2 },
+            { (int)FiveFretGuitarFret.Yellow, 3 },
+            { (int)FiveFretGuitarFret.Blue, 4 },
+            { (int)FiveFretGuitarFret.Orange, 5 }
+        };
+
         public override bool ShouldUpdateInputsOnResume => true;
 
         private static float[] GuitarStarMultiplierThresholds => new[]
@@ -142,14 +154,16 @@ namespace YARG.Assets.Script.Gameplay.Player
             StarScoreThresholds = PopulateStarScoreThresholds(StarMultiplierThresholds, Engine.BaseScore);
 
             IndicatorStripes.Initialize(Player.EnginePreset.FiveFretGuitar);
+
+            _fretArray.FretCount = Player.Profile.FiveLaneKeysOpenLaneMode is FiveLaneKeysOpenLaneMode.Always ? 6 : 5;
+
             _fretArray.Initialize(
                 Player.ThemePreset,
                 VisualStyle.FiveLaneKeys,
                 Player.ColorProfile.FiveFretGuitar,
+                Player.Profile.FiveLaneKeysOpenLaneMode is FiveLaneKeysOpenLaneMode.Always ? OPEN_LANE_HIGHWAY_ORDERING : FiveFretGuitarPlayer.DEFAULT_HIGHWAY_ORDERING, // TODO: Method for sometimes option
                 Player.Profile.LeftyFlip,
-                false, // Not applicable to five fret
-                false, // Not applicable to five fret
-                false  // Not applicable to five fret
+                false // Not applicable to keys
                 );
 
             if (Player.Profile.RangeEnabled)
@@ -380,12 +394,12 @@ namespace YARG.Assets.Script.Gameplay.Player
 
             (NotePool.GetByKey(note) as FiveLaneKeysNoteElement)?.HitNote();
 
-            if (note.FiveLaneKeysAction is FiveLaneKeysAction.OpenNote)
+            if (note.FiveLaneKeysAction is FiveLaneKeysAction.OpenNote && Player.Profile.FiveLaneKeysOpenLaneMode is FiveLaneKeysOpenLaneMode.Never)
             {
                 _fretArray.PlayOpenHitAnimation();
             } else
             {
-                _fretArray.PlayHitAnimation((int)note.FiveLaneKeysAction);
+                _fretArray.PlayHitAnimation(note.Fret);
             }
         }
 
@@ -414,7 +428,7 @@ namespace YARG.Assets.Script.Gameplay.Player
         {
             if (note.FiveLaneKeysAction is not FiveLaneKeysAction.OpenNote)
             {
-                _fretArray.SetSustained((int) note.FiveLaneKeysAction, true);
+                _fretArray.SetSustained((int) note.Fret, true);
             }
 
             _sustainCount++;
@@ -434,7 +448,7 @@ namespace YARG.Assets.Script.Gameplay.Player
 
             if (note.FiveLaneKeysAction is not FiveLaneKeysAction.OpenNote)
             {
-                _fretArray.SetSustained((int) note.FiveLaneKeysAction, false);
+                _fretArray.SetSustained((int) note.Fret, false);
             }
 
             _sustainCount--;

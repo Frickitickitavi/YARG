@@ -37,6 +37,8 @@ namespace YARG.Settings.Preview
             public HitWindowProviderFunc HitWindowProvider;
 
             public CreateFakeNoteFunc CreateFakeNote;
+
+            public Dictionary<int, int> HighwayOrdering;
         }
 
         private static readonly Dictionary<GameMode, Info> _gameModeInfos = new()
@@ -90,7 +92,9 @@ namespace YARG.Settings.Preview
                             CenterNote = false,
                             NoteType = noteType
                         };
-                    }
+                    },
+
+                    HighwayOrdering = FiveFretGuitarPlayer.DEFAULT_HIGHWAY_ORDERING
                 }
             },
             {
@@ -157,7 +161,9 @@ namespace YARG.Settings.Preview
                             CenterNote = false,
                             NoteType = noteType
                         };
-                    }
+                    },
+
+                    HighwayOrdering = DrumsPlayer.DEFAULT_FOUR_LANE_HIGHWAY_ORDERING
                 }
             },
             {
@@ -206,7 +212,9 @@ namespace YARG.Settings.Preview
                             CenterNote = false,
                             NoteType = noteType
                         };
-                    }
+                    },
+
+                    HighwayOrdering = DrumsPlayer.DEFAULT_FIVE_LANE_HIGHWAY_ORDERING
                 }
             },
             {
@@ -286,8 +294,14 @@ namespace YARG.Settings.Preview
             {
                 _fretArray.FretCount = CurrentGameModeInfo.FretCount;
                 _fretArray.UseKickFrets = CurrentGameModeInfo.UseKickFrets;
-                _fretArray.Initialize(theme, style,
-                    CurrentGameModeInfo.FretColorProvider(ColorProfile.Default), false, false, false, false);
+                _fretArray.Initialize(
+                    theme,
+                    style,
+                    CurrentGameModeInfo.FretColorProvider(ColorProfile.Default),
+                    CurrentGameModeInfo.HighwayOrdering,
+                    false,
+                    false
+                );
                 _fretArray.transform.SetLayerRecursive(LayerMask.NameToLayer("Settings Preview"));
             }
 

@@ -23,6 +23,26 @@ namespace YARG.Gameplay.Player
     {
         private const float DRUM_PAD_FLASH_HOLD_DURATION = 0.2f;
 
+        public static Dictionary<int, int> DEFAULT_FOUR_LANE_HIGHWAY_ORDERING = new()
+                {
+                    { (int)FourLaneDrumPad.RedDrum,         0 },
+                    { (int)FourLaneDrumPad.YellowCymbal,    1 },
+                    { (int)FourLaneDrumPad.YellowDrum,      1 },
+                    { (int)FourLaneDrumPad.BlueCymbal,      2 },
+                    { (int)FourLaneDrumPad.BlueDrum,        2 },
+                    { (int)FourLaneDrumPad.GreenCymbal,     3 },
+                    { (int)FourLaneDrumPad.GreenDrum,       3 }
+                };
+
+        public static Dictionary<int, int> DEFAULT_FIVE_LANE_HIGHWAY_ORDERING = new()
+                {
+                    { (int)FiveLaneDrumPad.Red,     0 },
+                    { (int)FiveLaneDrumPad.Yellow,  1 },
+                    { (int)FiveLaneDrumPad.Blue,    2 },
+                    { (int)FiveLaneDrumPad.Orange,  3 },
+                    { (int)FiveLaneDrumPad.Green,   5 }
+                };
+
         public DrumsEngineParameters EngineParams { get; private set; }
 
         [Header("Drums Specific")]
@@ -142,10 +162,9 @@ namespace YARG.Gameplay.Player
                 Player.ThemePreset,
                 _fiveLaneMode ? VisualStyle.FiveLaneDrums : VisualStyle.FourLaneDrums,
                 colors,
+                MakeHighwayOrdering(),
                 Player.Profile.LeftyFlip,
-                IsSplitMode,
-                ShouldSwapSnareAndHiHat(),
-                ShouldSwapCrashAndRide()
+                IsSplitMode
             );
 
             // Particle 0 is always kick fret
@@ -926,6 +945,40 @@ namespace YARG.Gameplay.Player
                 FourLaneDrumPad.GreenDrum    => 7,
                 _                            => -1,
             };
+        }
+
+        private Dictionary<int, int> MakeHighwayOrdering()
+        {
+            if (Player.Profile.CurrentInstrument is Instrument.FiveLaneDrums)
+            {
+                return new()
+                {
+                    { (int)FiveLaneDrumPad.Red,     Player.Profile.SwapSnareAndHiHat ? 1 : 0 },
+                    { (int)FiveLaneDrumPad.Yellow,  Player.Profile.SwapSnareAndHiHat ? 0 : 1 },
+                    { (int)FiveLaneDrumPad.Blue,    2 },
+                    { (int)FiveLaneDrumPad.Orange,  3 },
+                    { (int)FiveLaneDrumPad.Green,   5 }
+                };
+            }
+
+            else if (Player.Profile.CurrentInstrument is Instrument.ProDrums && Player.Profile.SplitProTomsAndCymbals)
+            {
+                return new()
+                {
+                    { (int)FourLaneDrumPad.RedDrum,         Player.Profile.SwapSnareAndHiHat ? 1 : 0 },
+                    { (int)FourLaneDrumPad.YellowCymbal,    Player.Profile.SwapSnareAndHiHat ? 0 : 1 },
+                    { (int)FourLaneDrumPad.YellowDrum,      2 },
+                    { (int)FourLaneDrumPad.BlueCymbal,      Player.Profile.SwapCrashAndRide ? 5 : 3 },
+                    { (int)FourLaneDrumPad.BlueDrum,        4 },
+                    { (int)FourLaneDrumPad.GreenCymbal,     Player.Profile.SwapCrashAndRide ? 3 : 5 },
+                    { (int)FourLaneDrumPad.GreenDrum,       6 },
+                };
+            }
+
+            else
+            {
+                return DEFAULT_FOUR_LANE_HIGHWAY_ORDERING;
+            }
         }
     }
 }

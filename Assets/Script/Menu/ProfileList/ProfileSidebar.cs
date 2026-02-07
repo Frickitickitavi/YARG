@@ -42,6 +42,13 @@ namespace YARG.Menu.ProfileList
             StarPowerActivationType.AllNotes,
         };
 
+        private static readonly FiveLaneKeysOpenLaneMode[] _fiveLaneKeysOpenLaneModes =
+        {
+            FiveLaneKeysOpenLaneMode.Never,
+            FiveLaneKeysOpenLaneMode.IfChartHasOpens,
+            FiveLaneKeysOpenLaneMode.Always
+        };
+
         [SerializeField]
         private GameObject _contents;
         [SerializeField]
@@ -79,6 +86,8 @@ namespace YARG.Menu.ProfileList
         [SerializeField]
         private TMP_Dropdown _starPowerActivationTypeDropdown;
         [SerializeField]
+        private TMP_Dropdown _fiveLaneKeysOpenLaneModeDropdown;
+        [SerializeField]
         private TMP_Dropdown _engineDropdown;
         [SerializeField]
         private TMP_Dropdown _themeDropdown;
@@ -112,6 +121,7 @@ namespace YARG.Menu.ProfileList
 
         private readonly List<GameMode> _gameModesByIndex = new();
         private readonly List<StarPowerActivationType> _starPowerActivationTypesByIndex = new();
+        private readonly List<FiveLaneKeysOpenLaneMode> _fiveLaneKeysOpenLaneModesByIndex = new();
 
         private List<Guid> _enginePresetsByIndex;
         private List<Guid> _colorProfilesByIndex;
@@ -168,6 +178,14 @@ namespace YARG.Menu.ProfileList
             {
                 _starPowerActivationTypesByIndex.Add(starPowerActivationType);
                 _starPowerActivationTypeDropdown.options.Add(new(starPowerActivationType.ToLocalizedName()));
+            }
+
+            // Set 5L Keys open lane mode
+            _fiveLaneKeysOpenLaneModeDropdown.options.Clear();
+            foreach (var fiveLaneKeysOpenLaneMode in _fiveLaneKeysOpenLaneModes)
+            {
+                _fiveLaneKeysOpenLaneModesByIndex.Add(fiveLaneKeysOpenLaneMode);
+                _fiveLaneKeysOpenLaneModeDropdown.options.Add(new(fiveLaneKeysOpenLaneMode.ToLocalizedName()));
             }
         }
 
@@ -231,6 +249,8 @@ namespace YARG.Menu.ProfileList
             _gameModeDropdown.value = _gameModesByIndex.IndexOf(profile.GameMode);
             _starPowerActivationTypeDropdown.value = _starPowerActivationTypesByIndex
                 .IndexOf(profile.StarPowerActivationType);
+            _fiveLaneKeysOpenLaneModeDropdown.value = _fiveLaneKeysOpenLaneModesByIndex
+                .IndexOf(profile.FiveLaneKeysOpenLaneMode);
             _noteSpeedField.text = profile.NoteSpeed.ToString(NUMBER_FORMAT, CultureInfo.CurrentCulture);
             _highwayLengthField.text = profile.HighwayLength.ToString(NUMBER_FORMAT, CultureInfo.CurrentCulture);
             _inputCalibrationField.text = _profile.InputCalibrationMilliseconds.ToString();
@@ -472,6 +492,11 @@ namespace YARG.Menu.ProfileList
         public void ChangeStarPowerActivationType()
         {
             _profile.StarPowerActivationType = _starPowerActivationTypesByIndex[_starPowerActivationTypeDropdown.value];
+        }
+
+        public void ChangeFiveLaneKeysOpenLaneMode()
+        {
+            _profile.FiveLaneKeysOpenLaneMode = _fiveLaneKeysOpenLaneModesByIndex[_fiveLaneKeysOpenLaneModeDropdown.value];
         }
 
         public void ChangeTheme()

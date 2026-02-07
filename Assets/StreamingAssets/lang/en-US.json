@@ -109,7 +109,12 @@
             "RightmostLane": "Rightmost Lane",
             "RightmostNote": "Rightmost Note",
             "AllNotes": "All Notes"
-        }
+        },
+		"FiveLaneKeysOpenLaneMode" : {
+			"Never": "Never",
+			"IfChartHasOpens": "If chart contains open notes",
+			"Always": "Always"
+		}
     },
     "Menu": {
         "Calibrator": {

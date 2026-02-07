@@ -102,6 +102,10 @@ namespace YARG.Localization
         {
             return Key("Enum.StarPowerActivationType", starPowerActivationType);
         }
+        public static string ToLocalizedName(this FiveLaneKeysOpenLaneMode fiveLaneKeysOpenLaneMode)
+        {
+            return Key("Enum.FiveLaneKeysOpenLaneMode", fiveLaneKeysOpenLaneMode);
+        }
 
         public static string ToLocalizedName(this Instrument instrument)
         {

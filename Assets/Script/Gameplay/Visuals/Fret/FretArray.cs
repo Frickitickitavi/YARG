@@ -19,6 +19,9 @@ namespace YARG.Gameplay.Visuals
         public bool DontFlipColorsLeftyFlip;
         public bool UseKickFrets;
 
+        public Dictionary<int, int> NoteToPosition;
+        private Dictionary<int, List<int>> PositionToNotes;
+
         [SerializeField]
         private float _trackWidth = 2f;
 
@@ -35,31 +38,41 @@ namespace YARG.Gameplay.Visuals
         private bool[] _pulsingFrets;
         private float  _pulseDuration;
 
-        public void Initialize(ThemePreset themePreset, VisualStyle style,
-            ColorProfile.IFretColorProvider fretColorProvider, bool leftyFlip, bool splitProTomsAndCymbals, bool swapSnareAndHiHat, bool swapCrashAndRide)
-        {
+        public void Initialize(
+            ThemePreset themePreset,
+            VisualStyle style,
+            ColorProfile.IFretColorProvider fretColorProvider,
+            Dictionary<int, int> highwayOrdering, // Mapping from note number (fret/pad/key) to lateral position on the highway (0-indexed)
+            bool leftyFlip,
+            bool splitProTomsAndCymbals
+        ) {
+            NoteToPosition = highwayOrdering;
+            PositionToNotes = new();
+            foreach (var (note, position) in NoteToPosition)
+            {
+                if (PositionToNotes.ContainsKey(position))
+                {
+                    PositionToNotes[position].Add(note);
+                } else
+                {
+                    PositionToNotes[position] = new() { note };
+                }
+            }
+
+
             var fretPrefab = ThemeManager.Instance.CreateFretPrefabFromTheme(
                 themePreset, style);
 
             // Spawn in normal frets
             _frets.Clear();
-            for (int i = 0; i < FretCount; i++)
+            foreach (var (_, position) in NoteToPosition)
             {
-                int effectivePosition = i switch
-                {
-                    0 => swapSnareAndHiHat ? 1 : 0,
-                    1 => swapSnareAndHiHat ? 0 : 1,
-                    3 => swapCrashAndRide ? 5 : 3,
-                    5 => swapCrashAndRide ? 3 : 5,
-                    _ => i
-                };
-
                 // Spawn
                 var fret = Instantiate(fretPrefab, transform);
                 fret.SetActive(true);
 
                 // Position
-                float x = _trackWidth / FretCount * effectivePosition - _trackWidth / 2f + 1f / FretCount;
+                float x = _trackWidth / FretCount * position - _trackWidth / 2f + 1f / FretCount;
                 fret.transform.localPosition = new Vector3(leftyFlip ? -x : x, 0f, 0f);
 
                 // Scale
@@ -135,10 +148,12 @@ namespace YARG.Gameplay.Visuals
                     index = _frets.Count - index + 1;
                 }
 
+                var noteTypeForFret = PositionToNotes[i][0];
+
                 _frets[i].Initialize(
-                    fretColorProvider.GetFretColor(index),
-                    fretColorProvider.GetFretInnerColor(index),
-                    fretColorProvider.GetParticleColor(index),
+                    fretColorProvider.GetFretColor(noteTypeForFret),
+                    fretColorProvider.GetFretInnerColor(noteTypeForFret),
+                    fretColorProvider.GetParticleColor(noteTypeForFret),
                     fretColorProvider.GetParticleColor(0 /* open note */)
                 );
             }
@@ -149,31 +164,46 @@ namespace YARG.Gameplay.Visuals
             }
         }
 
-        public void SetPressed(int index, bool pressed)
+        public void SetPressed(int note, bool pressed)
         {
-            _frets[index].SetPressed(pressed);
+            if (NoteToPosition.ContainsKey(note))
+            {
+                _frets[NoteToPosition[note]].SetPressed(pressed);
+            }
         }
 
-        public void SetPressedDrum(int index, bool pressed, Fret.AnimType animType)
+        public void SetPressedDrum(int note, bool pressed, Fret.AnimType animType)
         {
-            _frets[index].SetPressedDrum(pressed, animType);
+            if (NoteToPosition.ContainsKey(note))
+            {
+                _frets[NoteToPosition[note]].SetPressedDrum(pressed, animType);
+            }
         }
 
-        public void SetSustained(int index, bool sustained)
+        public void SetSustained(int note, bool sustained)
         {
-            _frets[index].SetSustained(sustained);
+            if (NoteToPosition.ContainsKey(note))
+            {
+                _frets[NoteToPosition[note]].SetSustained(sustained);
+            }
         }
 
-        public void PlayHitAnimation(int index)
+        public void PlayHitAnimation(int note)
         {
-            _frets[index].PlayHitAnimation();
-            _frets[index].PlayHitParticles();
+            if (NoteToPosition.ContainsKey(note))
+            {
+                _frets[NoteToPosition[note]].PlayHitAnimation();
+                _frets[NoteToPosition[note]].PlayHitParticles();
+            }
         }
 
-        public void PlayCymbalHitAnimation(int index)
+        public void PlayCymbalHitAnimation(int note)
         {
-            _frets[index].PlayCymbalHitAnimation();
-            _frets[index].PlayHitParticles();
+            if (NoteToPosition.ContainsKey(note))
+            {
+                _frets[NoteToPosition[note]].PlayCymbalHitAnimation();
+                _frets[NoteToPosition[note]].PlayHitParticles();
+            }
         }
 
         public void PlayOpenHitAnimation()
@@ -219,22 +249,28 @@ namespace YARG.Gameplay.Visuals
             }
         }
 
-        public void UpdateAccentColorState(int fretIndex, bool shouldWhiten)
+        public void UpdateAccentColorState(int note, bool shouldWhiten)
         {
-            if (shouldWhiten)
+            if (NoteToPosition.ContainsKey(note))
             {
-                _frets[fretIndex].WhitenFretColor();
-            }
-            else
-            {
-                _frets[fretIndex].RestoreFretColor();
+                if (shouldWhiten)
+                {
+                    _frets[note].WhitenFretColor();
+                }
+                else
+                {
+                    _frets[note].RestoreFretColor();
+                }
             }
         }
 
-        public void SetFretColorPulse(int fretIndex, bool pulse, float duration)
+        public void SetFretColorPulse(int note, bool pulse, float duration)
         {
-            _pulseDuration = duration;
-            _pulsingFrets[fretIndex] = pulse;
+            if (NoteToPosition.ContainsKey(note))
+            {
+                _pulseDuration = duration;
+                _pulsingFrets[note] = pulse;
+            }
         }
 
         public void PulseFretColors()

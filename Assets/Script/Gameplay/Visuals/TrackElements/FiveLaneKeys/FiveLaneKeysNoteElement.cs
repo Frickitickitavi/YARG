@@ -13,6 +13,9 @@ namespace YARG.Gameplay.Visuals
 {
     public sealed class FiveLaneKeysNoteElement : NoteElement<GuitarNote, FiveLaneKeysPlayer>
     {
+        private float? _fretNoteScaleFactor;
+        private Vector3? _fretNoteScale;
+
         private enum NoteType
         {
             Normal = 0,
@@ -45,14 +48,22 @@ namespace YARG.Gameplay.Visuals
         {
             base.InitializeElement();
 
+            _fretNoteScaleFactor ??= 5f/ Player.NoteToPosition.Count;
+            _fretNoteScale ??= new(_fretNoteScaleFactor.Value, _fretNoteScaleFactor.Value, 1f);
+
             var noteGroups = NoteRef.IsStarPower ? StarPowerNoteGroups : NoteGroups;
 
-            if (NoteRef.Fret != (int) FiveFretGuitarFret.Open)
+            if (Player.NoteToPosition.ContainsKey(NoteRef.Fret))
             {
                 // Deal with non-open notes
+                var position = Player.NoteToPosition[NoteRef.Fret];
+                gameObject.transform.localScale = _fretNoteScale.Value;
 
-                // Set the position
-                transform.localPosition = new Vector3(GetElementX(NoteRef.Fret, 5), 0f, 0f) * LeftyFlipMultiplier;
+                if (position != -1)
+                {
+                    // Set the position
+                    transform.localPosition = new Vector3(GetElementX(position+1, Player.NoteToPosition.Count), 0f, 0f) * LeftyFlipMultiplier;
+                }
 
                 // Get which note model to use
                 NoteGroup = NoteRef.Type switch
