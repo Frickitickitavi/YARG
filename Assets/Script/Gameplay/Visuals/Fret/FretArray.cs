@@ -46,6 +46,8 @@ namespace YARG.Gameplay.Visuals
             bool leftyFlip,
             bool splitProTomsAndCymbals
         ) {
+            FretCount = highwayOrdering.Count;
+
             NoteToPosition = highwayOrdering;
             PositionToNotes = new();
             foreach (var (note, position) in NoteToPosition)

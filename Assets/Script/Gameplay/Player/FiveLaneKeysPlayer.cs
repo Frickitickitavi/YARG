@@ -155,13 +155,11 @@ namespace YARG.Assets.Script.Gameplay.Player
 
             IndicatorStripes.Initialize(Player.EnginePreset.FiveFretGuitar);
 
-            _fretArray.FretCount = Player.Profile.FiveLaneKeysOpenLaneMode is FiveLaneKeysOpenLaneMode.Always ? 6 : 5;
-
             _fretArray.Initialize(
                 Player.ThemePreset,
                 VisualStyle.FiveLaneKeys,
                 Player.ColorProfile.FiveFretGuitar,
-                Player.Profile.FiveLaneKeysOpenLaneMode is FiveLaneKeysOpenLaneMode.Always ? OPEN_LANE_HIGHWAY_ORDERING : FiveFretGuitarPlayer.DEFAULT_HIGHWAY_ORDERING, // TODO: Method for sometimes option
+                SelectHighwayOrdering(), // TODO: Method for sometimes option
                 Player.Profile.LeftyFlip,
                 false // Not applicable to keys
                 );
@@ -642,6 +640,35 @@ namespace YARG.Assets.Script.Gameplay.Player
             {
                 _activeFrets = newFrets;
                 _fretArray.UpdateFretActiveState(_activeFrets);
+            }
+        }
+
+        private Dictionary<int, int> SelectHighwayOrdering()
+        {
+            switch (Player.Profile.FiveLaneKeysOpenLaneMode)
+            {
+                case FiveLaneKeysOpenLaneMode.Never:
+                    return FiveFretGuitarPlayer.DEFAULT_HIGHWAY_ORDERING;
+                case FiveLaneKeysOpenLaneMode.Always:
+                    return OPEN_LANE_HIGHWAY_ORDERING;
+                case FiveLaneKeysOpenLaneMode.IfChartHasOpens:
+                    var chartHasOpens = false;
+
+                    foreach (var note in NoteTrack.Notes)
+                    {
+                        foreach (var child in note.AllNotes)
+                        {
+                            if (child.Fret == (int) FiveFretGuitarFret.Open)
+                            {
+                                chartHasOpens = true;
+                                break;
+                            }
+                        }
+                    }
+
+                    return chartHasOpens ? OPEN_LANE_HIGHWAY_ORDERING : FiveFretGuitarPlayer.DEFAULT_HIGHWAY_ORDERING;
+                default:
+                    throw new System.Exception("Unreachable");
             }
         }
     }
