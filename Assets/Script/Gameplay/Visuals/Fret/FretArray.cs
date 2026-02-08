@@ -6,6 +6,7 @@ using YARG.Core.Chart;
 using YARG.Core.Game;
 using YARG.Core.Logging;
 using YARG.Themes;
+using static YARG.Core.Engine.Keys.FiveLaneKeysEngine;
 using static YARG.Themes.ThemeManager;
 
 namespace YARG.Gameplay.Visuals
@@ -156,7 +157,7 @@ namespace YARG.Gameplay.Visuals
                     fretColorProvider.GetFretColor(noteTypeForFret),
                     fretColorProvider.GetFretInnerColor(noteTypeForFret),
                     fretColorProvider.GetParticleColor(noteTypeForFret),
-                    fretColorProvider.GetParticleColor(0 /* open note */)
+                    fretColorProvider.GetParticleColor((int)FiveLaneKeysAction.OpenNote)
                 );
             }
 
