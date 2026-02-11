@@ -157,7 +157,7 @@ namespace YARG.Gameplay.Visuals
                     fretColorProvider.GetFretColor(noteTypeForFret),
                     fretColorProvider.GetFretInnerColor(noteTypeForFret),
                     fretColorProvider.GetParticleColor(noteTypeForFret),
-                    fretColorProvider.GetParticleColor((int)FiveLaneKeysAction.OpenNote)
+                    fretColorProvider.GetParticleColor((int)FiveFretGuitarFret.Open)
                 );
             }
 
@@ -218,12 +218,12 @@ namespace YARG.Gameplay.Visuals
             }
         }
 
-        public void PlayMissAnimation(int index)
+        public void PlayMissAnimation(int note)
         {
-            if (0 <= index && index <= _frets.Count)
+            if (NoteToPosition.ContainsKey(note))
             {
-                _frets[index].PlayMissAnimation();
-                _frets[index].PlayMissParticles();
+                _frets[NoteToPosition[note]].PlayMissAnimation();
+                _frets[NoteToPosition[note]].PlayMissParticles();
             }
         }
 

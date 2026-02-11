@@ -291,9 +291,9 @@ namespace YARG.Assets.Script.Gameplay.Player
 
         private void UpdateFretArray()
         {
-            for (var fret = (int)FiveLaneKeysAction.GreenKey; fret <= (int)FiveLaneKeysAction.OrangeKey; fret++)
+            for (var fret = (int)FiveFretGuitarFret.Green; fret <= (int)FiveFretGuitarFret.Open; fret++)
             {
-                _fretArray.SetPressed(fret, Engine.IsKeyHeld((FiveLaneKeysAction)fret));
+                _fretArray.SetPressed(fret, Engine.IsKeyHeld((FiveLaneKeysAction)fret-1));
             }
         }
 
@@ -392,7 +392,7 @@ namespace YARG.Assets.Script.Gameplay.Player
 
             (NotePool.GetByKey(note) as FiveLaneKeysNoteElement)?.HitNote();
 
-            if (note.FiveLaneKeysAction is FiveLaneKeysAction.OpenNote && Player.Profile.FiveLaneKeysOpenLaneMode is FiveLaneKeysOpenLaneMode.Never)
+            if (NoteIsOpenWithoutDedicatedLane((int)note.FiveLaneKeysAction))
             {
                 _fretArray.PlayOpenHitAnimation();
             } else
@@ -412,13 +412,13 @@ namespace YARG.Assets.Script.Gameplay.Player
         {
             OnOverhit();
 
-            if (key is (int) FiveLaneKeysAction.OpenNote)
+            if (NoteIsOpenWithoutDedicatedLane(key))
             {
                 _fretArray.PlayOpenMissAnimation();
             }
             else
             {
-                _fretArray.PlayMissAnimation(key);
+                _fretArray.PlayMissAnimation(key+1);
             }
         }
 
@@ -670,6 +670,11 @@ namespace YARG.Assets.Script.Gameplay.Player
                 default:
                     throw new System.Exception("Unreachable");
             }
+        }
+
+        private bool NoteIsOpenWithoutDedicatedLane(int key)
+        {
+            return key is (int) FiveLaneKeysAction.OpenNote && !_fretArray.NoteToPosition.ContainsKey((int) FiveFretGuitarFret.Open);
         }
     }
 }

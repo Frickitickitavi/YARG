@@ -298,7 +298,7 @@ namespace YARG.Gameplay.Player
         {
             for (var fret = GuitarAction.GreenFret; fret <= GuitarAction.OrangeFret; fret++)
             {
-                _fretArray.SetPressed((int) fret, Engine.IsFretHeld(fret));
+                _fretArray.SetPressed((int) fret+1, Engine.IsFretHeld(fret));
             }
         }
 

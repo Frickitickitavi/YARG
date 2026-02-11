@@ -145,19 +145,6 @@ namespace YARG.Gameplay.Player
                 ? Player.ColorProfile.FourLaneDrums
                 : Player.ColorProfile.FiveLaneDrums;
 
-            if (_fiveLaneMode)
-            {
-                _fretArray.FretCount = 5;
-            }
-            else if (IsSplitMode)
-            {
-                _fretArray.FretCount = 7;
-            }
-            else
-            {
-                _fretArray.FretCount = 4;
-            }
-
             _fretArray.Initialize(
                 Player.ThemePreset,
                 _fiveLaneMode ? VisualStyle.FiveLaneDrums : VisualStyle.FourLaneDrums,
