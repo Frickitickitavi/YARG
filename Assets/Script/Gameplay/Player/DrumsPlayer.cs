@@ -334,20 +334,40 @@ namespace YARG.Gameplay.Player
 
         protected override void InitializeSpawnedLane(LaneElement lane, DrumNote note)
         {
-            var highwayOrderingInfo = _highwayOrdering[note.Pad];
+            if (lane.IsKick)
+            {
+                var kickLaneColor = (_fiveLaneMode ?
+                    Player.ColorProfile.FiveLaneDrums.GetNoteColor(0) :
+                    Player.ColorProfile.FourLaneDrums.GetNoteColor(0)
+                ).ToUnityColor();
 
-            var laneColor = (_fiveLaneMode ?
-                Player.ColorProfile.FiveLaneDrums.GetNoteColor(highwayOrderingInfo.ColorIndex) :
-                Player.ColorProfile.FourLaneDrums.GetNoteColor(highwayOrderingInfo.ColorIndex)
-            ).ToUnityColor();
+                lane.SetAppearance(
+                    Player.Profile.CurrentInstrument,
+                    note.LaneNote,
+                    LaneCount / 2,
+                    LaneCount,
+                    kickLaneColor
+                );
+            }
 
-            lane.SetAppearance(
-                Player.Profile.CurrentInstrument,
-                note.LaneNote,
-                highwayOrderingInfo.Position,
-                LaneCount,
-                laneColor
-            );
+            else
+            {
+
+                var highwayOrderingInfo = _highwayOrdering[note.Pad];
+
+                var laneColor = (_fiveLaneMode ?
+                    Player.ColorProfile.FiveLaneDrums.GetNoteColor(highwayOrderingInfo.ColorIndex) :
+                    Player.ColorProfile.FourLaneDrums.GetNoteColor(highwayOrderingInfo.ColorIndex)
+                ).ToUnityColor();
+
+                lane.SetAppearance(
+                    Player.Profile.CurrentInstrument,
+                    note.LaneNote,
+                    highwayOrderingInfo.Position,
+                    LaneCount,
+                    laneColor
+                );
+            }
 
         }
 
@@ -355,7 +375,7 @@ namespace YARG.Gameplay.Player
         {
             if (note.Pad == 0)
             {
-                lane.ToggleOpen(true);
+                lane.ToggleKick(true);
             }
             else
             {
@@ -384,6 +404,12 @@ namespace YARG.Gameplay.Player
             // Remember that drums treat each note separately
 
             (NotePool.GetByKey(note) as DrumsNoteElement)?.MissNote();
+        }
+
+        protected override void OnNoteSpawned(DrumNote parentNote)
+        {
+            base.OnNoteSpawned(parentNote);
+            SpawnKickLanesFromNote(parentNote);
         }
 
         protected override void OnStarPowerPhraseHit()
@@ -795,6 +821,76 @@ namespace YARG.Gameplay.Player
                     { (int)FourLaneDrumPad.GreenCymbal,   new(ApplyHandednessToPosition(3), ApplyHandednessToFourLaneColor(FourLaneDrumsFret.GreenCymbal)) },
                     { (int)FourLaneDrumPad.GreenDrum,     new(ApplyHandednessToPosition(3), ApplyHandednessToFourLaneColor(FourLaneDrumsFret.GreenDrum)) },
                 };
+            }
+        }
+
+        private void SpawnKickLanesFromNote(DrumNote parentNote)
+        {
+            if (!Engine.LanesExist || !Engine.BaseParameters.EnableLanes)
+            {
+                return;
+            }
+
+            if (!LanePool.CanSpawnAmount(1))
+            {
+                return;
+            }
+
+            bool containsLaneStart = false;
+            foreach (var childNote in parentNote.AllNotes)
+            {
+                if (childNote.IsKickLaneStart)
+                {
+                    containsLaneStart = true;
+                    break;
+                }
+            }
+
+            if (containsLaneStart)
+            {
+                double? laneEndTime = null;
+
+                // Iterate forward to find the length of all lanes in this phrase
+                var noteRef = parentNote;
+
+                while (noteRef != null)
+                {
+                    // Create one lane for single notes, create multiple lanes for non-drum chords
+                    bool containsLaneEnd = false;
+                    foreach (var childNote in noteRef.AllNotes)
+                    {
+                        if (childNote.IsKickLaneEnd)
+                        {
+                            containsLaneEnd = true;
+                        }
+
+                        if (childNote.IsKickLane)
+                        {
+                            laneEndTime = noteRef.Time;
+                        }
+                    }
+
+                    if (containsLaneEnd)
+                    {
+                        break;
+                    }
+
+                    noteRef = noteRef.NextNote;
+                }
+
+                
+                // If ending note was not found, do not create lane
+                if (laneEndTime is not null)
+                {
+                    // Create a new lane element at this index
+                    var newLane = (LaneElement) LanePool.TakeWithoutEnabling();
+                    newLane.SetTimeRange(parentNote.Time, laneEndTime.Value);
+                    newLane.ToggleKick(true);
+                    InitializeSpawnedLane(newLane, parentNote);
+                    ModifyLaneFromNote(newLane, parentNote);
+
+                    newLane.EnableFromPool();
+                }
             }
         }
     }

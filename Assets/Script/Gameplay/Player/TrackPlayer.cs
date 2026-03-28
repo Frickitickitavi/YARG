@@ -686,7 +686,7 @@ namespace YARG.Gameplay.Player
             bool containsLaneStart = false;
             foreach (var childNote in parentNote.AllNotes)
             {
-                if (childNote.IsLaneStart)
+                if (childNote.IsHandLaneStart)
                 {
                     containsLaneStart = true;
                     break;
@@ -708,12 +708,12 @@ namespace YARG.Gameplay.Player
                     bool containsLaneEnd = false;
                     foreach (var childNote in noteRef.AllNotes)
                     {
-                        if (childNote.IsLaneEnd)
+                        if (childNote.IsHandLaneEnd)
                         {
                             containsLaneEnd = true;
                         }
 
-                        if (childNote.IsLane)
+                        if (childNote.IsHandLane)
                         {
                             if (laneStartNotes.ContainsKey(childNote.LaneNote))
                             {
@@ -750,6 +750,12 @@ namespace YARG.Gameplay.Player
                     bool extendExisting = false;
                     foreach (LaneElement existingLane in LanePool.AllSpawned)
                     {
+                        if (existingLane.IsKick)
+                        {
+                            // Never merge kick lanes
+                            continue;
+                        }
+
                         if (existingLane.ContainsIndex(laneIndex))
                         {
                             if (startTime - existingLane.EndTime <= LaneElement.COMBINE_LANE_THRESHOLD)
@@ -794,6 +800,7 @@ namespace YARG.Gameplay.Player
                     newLane.SetTimeRange(startTime, endTime);
                     InitializeSpawnedLane(newLane, note);
                     ModifyLaneFromNote(newLane, firstLaneNote);
+                    newLane.ToggleKick(false);
 
                     newLane.EnableFromPool();
                 }

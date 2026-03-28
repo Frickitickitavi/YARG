@@ -17,7 +17,7 @@ namespace YARG.Gameplay.Visuals
         private const float LANE_LENGTH_RATIO = 0.02f;
 
         private const float OPEN_LANE_SCALE = 0.5f;
-        private const float OPEN_LANE_START_TIME_OFFSET = 0.05f;
+        private const float OPEN_LANE_TIME_OFFSET = 0.05f;
 
         private static readonly int _emissionEnabled = Shader.PropertyToID("_Emission");
         private static readonly int _emissionColor = Shader.PropertyToID("_EmissionColor");
@@ -66,6 +66,8 @@ namespace YARG.Gameplay.Visuals
         private Color _color;
 
         private bool _isOpen = false;
+
+        public bool IsKick { get; private set; } = false;
 
         public void SetAppearance(Instrument instrument, int index, float lateralPosition, int subdivisions, Color color)
         {
@@ -170,13 +172,30 @@ namespace YARG.Gameplay.Visuals
 
             if (Initialized)
             {
-                RenderOpen();
+                RenderOpenOrKick();
+            }
+        }
+
+        public void ToggleKick(bool state)
+        {
+            if (state == IsKick)
+            {
+                return;
+            }
+
+            IsKick = state;
+
+            _meshTransform.localPosition = _meshTransform.localPosition.WithY(IsKick ? -0.01f : 0).WithZ(IsKick ? .25f : 0);
+
+            if (Initialized)
+            {
+                RenderOpenOrKick();
             }
         }
 
         protected override void InitializeElement()
         {
-            RenderOpen();
+            RenderOpenOrKick();
             RenderScale();
 
             // Set position
@@ -204,6 +223,7 @@ namespace YARG.Gameplay.Visuals
         protected override void HideElement()
         {
             ToggleOpen(false);
+            ToggleKick(false);
         }
 
         private void RenderLength()
@@ -220,16 +240,16 @@ namespace YARG.Gameplay.Visuals
             RenderLength();
         }
 
-        private void RenderOpen()
+        private void RenderOpenOrKick()
         {
             // This is the only shape key on the mesh, has an index of 0
-            _meshRenderer.SetBlendShapeWeight(0, _isOpen ? 100 : 0);
+            _meshRenderer.SetBlendShapeWeight(0, _isOpen || IsKick ? 100 : 0);
 
-            if (_isOpen == true)
+            if (_isOpen || IsKick)
             {
                 SetXPosition(0);
 
-                SetTimeRange(_startTime - OPEN_LANE_START_TIME_OFFSET, EndTime);
+                SetTimeRange(_startTime - OPEN_LANE_TIME_OFFSET, EndTime - OPEN_LANE_TIME_OFFSET);
 
                 _scale = OPEN_LANE_SCALE;
 
