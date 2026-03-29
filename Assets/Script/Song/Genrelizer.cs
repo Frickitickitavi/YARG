@@ -648,6 +648,6 @@ namespace YARG.Song
     {
         Off,
         Genrelize,
-        Overgenrelize
+        OvergenrelizeJoke
     }
 }

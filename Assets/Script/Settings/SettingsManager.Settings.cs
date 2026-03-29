@@ -164,8 +164,8 @@ namespace YARG.Settings
             public DropdownSetting<GenrelizerMode> Genrelizer { get; } =
                 new(GenrelizerMode.Genrelize)
                 {
+                    GenrelizerMode.OvergenrelizeJoke,
                     GenrelizerMode.Genrelize,
-                    GenrelizerMode.Overgenrelize,
                     GenrelizerMode.Off,
                 };
 
