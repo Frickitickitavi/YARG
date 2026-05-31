@@ -440,9 +440,9 @@ namespace YARG.Gameplay.Player
 
         protected override void ModifyLaneFromNote(LaneElement lane, DrumNote note)
         {
-            if (note.Pad == 0)
+            if (PadIsWildcard(note.Pad) || (PadIsKick(note.Pad) && NumberOfDedicatedKickLanes == 0))
             {
-                lane.ToggleOpen(true);
+                lane.ToggleFullWidth(true);
             }
             else
             {
@@ -984,6 +984,16 @@ namespace YARG.Gameplay.Player
             }
 
             ResetLastHitTimes();
+        }
+
+        private bool PadIsKick(int pad)
+        {
+            return _fiveLaneMode ? (pad is (int) FiveLaneDrumPad.Kick) : (pad is (int) FourLaneDrumPad.Kick);
+        }
+
+        private bool PadIsWildcard(int pad)
+        {
+            return _fiveLaneMode ? (pad is (int) FiveLaneDrumPad.Wildcard) : (pad is (int) FourLaneDrumPad.Wildcard);
         }
 
         public enum DrumsBreLaneIndex

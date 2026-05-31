@@ -84,7 +84,7 @@ namespace YARG.Gameplay.Visuals
 
         private Color _color;
 
-        private bool _isOpen = false;
+        private bool _isFullWidth = false;
 
         public void SetAppearance(Instrument instrument, int index, float lateralPosition, int subdivisions, Color color)
         {
@@ -195,17 +195,17 @@ namespace YARG.Gameplay.Visuals
             }
         }
 
-        public void ToggleOpen(bool state)
+        public void ToggleFullWidth(bool state)
         {
-            if (state == _isOpen)
+            if (state == _isFullWidth)
             {
                 return;
             }
 
-            _isOpen = state;
+            _isFullWidth = state;
 
             //_meshRenderer.sortingOrder += _isOpen ? -50 : 50;
-            _meshTransform.localPosition = _meshTransform.localPosition.WithY(_isOpen ? -0.01f : 0);
+            _meshTransform.localPosition = _meshTransform.localPosition.WithY(_isFullWidth ? -0.01f : 0);
 
             if (Initialized)
             {
@@ -234,7 +234,7 @@ namespace YARG.Gameplay.Visuals
 
         protected override void HideElement()
         {
-            ToggleOpen(false);
+            ToggleFullWidth(false);
         }
 
         private void RenderLength()
@@ -254,9 +254,9 @@ namespace YARG.Gameplay.Visuals
         private void RenderOpen()
         {
             // This is the only shape key on the mesh, has an index of 0
-            _meshRenderer.SetBlendShapeWeight(0, _isOpen ? 100 : 0);
+            _meshRenderer.SetBlendShapeWeight(0, _isFullWidth ? 100 : 0);
 
-            if (_isOpen == true)
+            if (_isFullWidth)
             {
                 SetXPosition(0);
 

@@ -475,9 +475,9 @@ public override bool ShouldUpdateInputsOnResume => true;
 
         protected override void ModifyLaneFromNote(LaneElement lane, GuitarNote note)
         {
-            if (note.Fret == (int) FiveFretGuitarFret.Open && !UsingOpenLane)
+            if (note.Fret is (int)FiveFretGuitarFret.Wildcard || (note.Fret is (int)FiveFretGuitarFret.Open && !UsingOpenLane))
             {
-                lane.ToggleOpen(true);
+                lane.ToggleFullWidth(true);
             }
             else
             {
