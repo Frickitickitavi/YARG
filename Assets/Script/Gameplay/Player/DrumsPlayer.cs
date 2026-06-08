@@ -386,21 +386,38 @@ namespace YARG.Gameplay.Player
 
         protected override void InitializeSpawnedLane(LaneElement lane, DrumNote note)
         {
-            var highwayOrderingInfo = _highwayOrdering[note.Pad];
+            if (note.Pad == (_fiveLaneMode ? (int) FiveLaneDrumPad.Wildcard : (int) FourLaneDrumPad.Wildcard))
+            {
+                var laneColor = (_fiveLaneMode ?
+                    Player.ColorProfile.FiveLaneDrums.GetNoteColor((int)FiveLaneDrumsFret.Wildcard) :
+                    Player.ColorProfile.FourLaneDrums.GetNoteColor((int)FourLaneDrumsFret.WildcardPad)
+                ).ToUnityColor();
 
-            var laneColor = (_fiveLaneMode ?
-                Player.ColorProfile.FiveLaneDrums.GetNoteColor(highwayOrderingInfo.ColorIndex) :
-                Player.ColorProfile.FourLaneDrums.GetNoteColor(highwayOrderingInfo.ColorIndex)
-            ).ToUnityColor();
+                lane.SetAppearance(
+                   Player.Profile.CurrentInstrument,
+                   note.LaneNote,
+                   LaneCount/2f,
+                   LaneCount,
+                   laneColor
+               );
+            }
+            else
+            {
+                var highwayOrderingInfo = _highwayOrdering[note.Pad];
 
-            lane.SetAppearance(
-                Player.Profile.CurrentInstrument,
-                note.LaneNote,
-                highwayOrderingInfo.Position,
-                LaneCount,
-                laneColor
-            );
+                var laneColor = (_fiveLaneMode ?
+                    Player.ColorProfile.FiveLaneDrums.GetNoteColor(highwayOrderingInfo.ColorIndex) :
+                    Player.ColorProfile.FourLaneDrums.GetNoteColor(highwayOrderingInfo.ColorIndex)
+                ).ToUnityColor();
 
+                lane.SetAppearance(
+                    Player.Profile.CurrentInstrument,
+                    note.LaneNote,
+                    highwayOrderingInfo.Position,
+                    LaneCount,
+                    laneColor
+                );
+            }
         }
 
         protected override void InitializeSpawnedLane(LaneElement lane, int laneIndex)
@@ -440,9 +457,12 @@ namespace YARG.Gameplay.Player
 
         protected override void ModifyLaneFromNote(LaneElement lane, DrumNote note)
         {
-            if (note.Pad == 0)
+            if (_fiveLaneMode ?
+                (note.Pad is (int)FiveLaneDrumPad.Kick or (int)FiveLaneDrumPad.Wildcard) :
+                (note.Pad is (int)FourLaneDrumPad.Kick or (int)FourLaneDrumPad.Wildcard)
+            )
             {
-                lane.ToggleOpen(true);
+                lane.ToggleFullWidth(true);
             }
             else
             {
