@@ -30,7 +30,7 @@ namespace YARG.Input.Serialization
         [JsonConstructor]
         public SerializedProfileBindingsV0() { }
 
-        public SerializedProfileBindingsV0(SerializedProfileBindings serialized)
+        public SerializedProfileBindingsV0(SerializedProfileDeviceInfo serialized)
         {
             Devices.AddRange(serialized.Devices.Select((device) => new SerializedInputDeviceV0(device)));
 
@@ -46,9 +46,9 @@ namespace YARG.Input.Serialization
                 MenuBindings = BindingSerialization.Serialize(serialized.MenuMappings);
         }
 
-        public SerializedProfileBindings Deserialize()
+        public SerializedProfileDeviceInfo Deserialize()
         {
-            var converted = new SerializedProfileBindings()
+            var converted = new SerializedProfileDeviceInfo()
             {
                 Microphone = Microphone?.Deserialize(),
             };

@@ -31,18 +31,33 @@ namespace YARG.Input.Serialization
 
     public class SerializedBindings
     {
-        public Dictionary<Guid, SerializedProfileBindings> Profiles = new();
+        public Dictionary<Guid, SerializedProfileDeviceInfo> Profiles = new();
+        public Dictionary<Guid, Guid> Controllers = new(); // Controller config GUID to reusable binding set GUID
+        public List<SerializedReusableBindingSet> ReusableBindingSets = new();
     }
 
-    public class SerializedProfileBindings
+    public class SerializedProfileDeviceInfo // previously called SerializedProfileBindings
     {
-        public List<SerializedInputDevice> Devices = new();
-        public SerializedMic? Microphone;
+        public List<SerializedInputDevice> Controllers = new();
+        public List<SerializedMic> Mics = new();
 
-        public Dictionary<GameMode, SerializedBindingCollection> ModeMappings = new();
+        // Key is controller hash, value is SerializedReusableBindingSet GUID
+        // If one of these controllers is in Controllers, use the corresponding reusable binding set
+        public Dictionary<string, Guid> ControllerMappings = new();
+
+        // Key is PlasticBand layout, value is SerializedReusableBindingSet GUID
+        // For each controller that isn't in Controllers, fall back to the corresponding reusable binding set for that controller's layout
+        // If this fails too, we'll check if the device itself has a default layout, and if not then we use the hardcoded default bindings
+        public Dictionary<string, Guid> LayoutMappings = new();
+
         public SerializedBindingCollection? MenuMappings;
     }
 
+    public class SerializedReusableBindingSet : SerializedBindingCollection
+    {
+        public string Name;
+        public Guid Id;
+    }
     public class SerializedBindingCollection
     {
         public Dictionary<string, SerializedControlBinding> Bindings = new();
@@ -79,13 +94,11 @@ namespace YARG.Input.Serialization
 
     public class SerializedInputControl
     {
-        public SerializedInputDevice Device;
         public string ControlPath;
         public Dictionary<string, string> Parameters = new();
 
-        public SerializedInputControl(SerializedInputDevice device, string path)
+        public SerializedInputControl(string path)
         {
-            Device = device;
             ControlPath = path;
         }
     }
@@ -129,7 +142,7 @@ namespace YARG.Input.Serialization
         {
             try
             {
-                var serialized = SerializeBindingsV2(bindings);
+                var serialized = SerializeBindingsV3(bindings);
                 string bindingsJson = JsonConvert.SerializeObject(serialized, Formatting.Indented);
                 File.WriteAllText(bindingsPath, bindingsJson);
             }
@@ -161,6 +174,7 @@ namespace YARG.Input.Serialization
                     0 => DeserializeBindingsV0(jObject),
                     1 => DeserializeBindingsV1(jObject),
                     2 => DeserializeBindingsV2(jObject),
+                    3 => DeserializeBindingsV3(jObject),
                     _ => throw new NotImplementedException($"Unhandled bindings version {version}!")
                 };
 

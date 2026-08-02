@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -58,12 +58,12 @@ namespace YARG.Input.Serialization
         [JsonConstructor]
         public SerializedProfileBindingsV2() { }
 
-        public SerializedProfileBindingsV2(SerializedProfileBindings serialized)
+        public SerializedProfileBindingsV2(SerializedProfileDeviceInfo serialized)
         {
-            Devices.AddRange(serialized.Devices.Select((device) => new SerializedInputDeviceV2(device)));
+            Devices.AddRange(serialized.Controllers.Select((device) => new SerializedInputDeviceV2(device)));
 
-            if (serialized.Microphone is not null)
-                Microphone = new SerializedMicV2(serialized.Microphone);
+            if (serialized.Mics is not null && serialized.Mics.Count > 0)
+                Microphone = new SerializedMicV2(serialized.Mics[0]);
 
             foreach (var (gameMode, bindings) in serialized.ModeMappings)
             {
@@ -74,14 +74,20 @@ namespace YARG.Input.Serialization
                 MenuMappings = new SerializedBindingCollectionV2(this, serialized.MenuMappings);
         }
 
-        public SerializedProfileBindings Deserialize()
+        public SerializedProfileDeviceInfo Deserialize()
         {
-            var deserialized = new SerializedProfileBindings()
+            var deserialized = new SerializedProfileDeviceInfo()
             {
-                Microphone = Microphone?.Deserialize(),
+                Mics = new()
             };
 
-            deserialized.Devices.AddRange(Devices.Select((device) => device.Deserialize()));
+            deserialized.Controllers.AddRange(Devices.Select((device) => device.Deserialize()));
+
+            if (Microphone is not null)
+            {
+                deserialized.Mics.Add(Microphone.Deserialize());
+            }
+            
 
             foreach (var (gameMode, bindings) in ModeMappings)
             {

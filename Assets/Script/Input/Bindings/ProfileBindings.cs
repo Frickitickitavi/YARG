@@ -77,7 +77,7 @@ namespace YARG.Input
         }
 
 #nullable enable
-        public ProfileBindings(YargProfile profile, SerializedProfileBindings? bindings)
+        public ProfileBindings(YargProfile profile, SerializedProfileDeviceInfo? bindings)
             : this(profile)
         {
             if (bindings is null)
@@ -117,9 +117,9 @@ namespace YARG.Input
             MenuBindings.Deserialize(bindings.MenuMappings);
         }
 
-        public SerializedProfileBindings Serialize()
+        public SerializedProfileDeviceInfo Serialize()
         {
-            var serialized = new SerializedProfileBindings();
+            var serialized = new SerializedProfileDeviceInfo();
 
             foreach (var device in _devices)
             {
@@ -147,7 +147,7 @@ namespace YARG.Input
             return serialized;
         }
 
-        public static ProfileBindings Deserialize(YargProfile profile, SerializedProfileBindings? serialized)
+        public static ProfileBindings Deserialize(YargProfile profile, SerializedProfileDeviceInfo? serialized)
         {
             return new(profile, serialized);
         }
