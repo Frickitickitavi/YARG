@@ -72,7 +72,7 @@ namespace YARG.Settings.Preview
                 GameMode.FiveFretGuitar,
                 new Info
                 {
-                    HighwayOrdering = FiveFretGuitarPlayer.DEFAULT_HIGHWAY_ORDERING,
+                    HighwayOrdering = GryboHighwayOrderingHelpers.DEFAULT_HIGHWAY_ORDERING,
                     LaneCount = 5,
 
                     FretColorProvider = (colorProfile) => colorProfile.FiveFretGuitar,

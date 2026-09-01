@@ -206,7 +206,7 @@ namespace YARG.Gameplay.Visuals
             _frets[index].PlayHitParticles();
         }
 
-        public void PlayOpenHitAnimation()
+        public void PlayFullWidthHitAnimation()
         {
             foreach (var (_, fret) in _frets)
             {

@@ -56,13 +56,13 @@ namespace YARG.Gameplay.Visuals
 
             var noteGroups = IsStarPowerVisible ? StarPowerNoteGroups : NoteGroups;
 
-            if (NoteRef.Fret != (int) FiveFretGuitarFret.Open && NoteRef.Fret != (int) FiveFretGuitarFret.Wildcard)
+            if (!Player.IsFullWidthNote(NoteRef))
             {
                 // Deal with non-open notes
                 var lane = Player.GetLanePosition((FiveFretGuitarFret)NoteRef.Fret);
 
                 // Set the position
-                transform.localPosition = new Vector3(GetElementX(lane, FiveFretGuitarPlayer.LANE_COUNT), 0f, 0f);
+                transform.localPosition = new Vector3(GetElementX(lane, Player.LaneCount), 0f, 0f);
 
                 // Get which note model to use
                 NoteGroup = NoteRef.Type switch
@@ -77,7 +77,7 @@ namespace YARG.Gameplay.Visuals
             }
             else if (NoteRef.Fret == (int) FiveFretGuitarFret.Open)
             {
-                // Deal with open notes
+                // Deal with non-dedicated-lane open notes
 
                 // Set the position
                 transform.localPosition = Vector3.zero;
