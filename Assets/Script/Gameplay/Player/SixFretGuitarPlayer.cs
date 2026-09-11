@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using YARG.Core;
 using YARG.Core.Chart;
@@ -38,7 +38,15 @@ namespace YARG.Gameplay.Player
         }
 
         // Get lane index (0-2) for a fret (accessible to note elements)
-        public int GetLaneIndex(SixFretGuitarFret fret) => HighwayOrdering[(int)fret];
+        public int GetLaneIndex(SixFretGuitarFret fret)
+        {
+            if (fret is SixFretGuitarFret.Open)
+            {
+                return (int)fret;
+            }
+
+            return HighwayOrdering[(int) fret];
+        }
 
         protected override int GetFretIndex(int action)
         {
@@ -203,6 +211,8 @@ namespace YARG.Gameplay.Player
             {
                 lane.MultiplyScale(0.85f);
             }
+
+
         }
 
         protected override void RescaleLanesForBRE()
